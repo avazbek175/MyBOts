@@ -199,12 +199,18 @@ export async function handleAdminAddMovieVideo(ctx: BotContext) {
     await logAdminAction(ctx, 'movie_add', data.movieData.movieCode, data.movieData.movieName)
 
     ctx.session.data = undefined
+    const { Markup } = require('telegraf')
     await ctx.reply(
       `${EMOJIS.success} <b>Kino muvaffaqiyatli qo'shildi!</b>\n\n` +
       `Kod: <code>${data.movieData.movieCode}</code>\n` +
-      `Nom: ${data.movieData.movieName}\n\n` +
-      `${EMOJIS.admin} Admin panelga qaytish: /admin`,
-      { parse_mode: 'HTML' }
+      `Nom: ${data.movieData.movieName}`,
+      {
+        parse_mode: 'HTML',
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback(`${EMOJIS.movie} Yana kino qo'shish`, 'admin_add_movie')],
+          [Markup.button.callback(`${EMOJIS.back} Asosiy menyu`, 'main_menu')],
+        ]).reply_markup,
+      }
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddMovieVideo error')
