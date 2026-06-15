@@ -105,6 +105,12 @@ bot.command('search', handleSearch)
 bot.command('premium', handlePremiumInfo)
 bot.command('profile', handleProfile)
 bot.command('admin', handleAdminPanel)
+bot.command('cancel', async (ctx: BotContext) => {
+  if (ctx.session) {
+    ctx.session.data = null
+  }
+  await ctx.reply('❌ Jarayon bekor qilindi.')
+})
 bot.command('stats', handleStats)
 
 bot.action('main_menu', handleMainMenu)

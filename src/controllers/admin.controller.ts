@@ -120,7 +120,7 @@ export async function handleAdminAddMovie(ctx: BotContext) {
     await ctx.answerCbQuery?.()
     if (ctx.session) {
       ctx.session.data = {
-        step: 'admin_add_movie_code',
+        step: 'waiting_movie_code',
         movieData: {},
       }
     }
