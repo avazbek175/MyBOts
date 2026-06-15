@@ -11,6 +11,7 @@ export interface IUser {
   isBanned: boolean
   banReason?: string
   lastActivity: Date
+  lastSubscriptionCheck?: Date
   createdAt: Date
   updatedAt: Date
 }

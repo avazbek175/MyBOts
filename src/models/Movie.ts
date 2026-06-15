@@ -26,5 +26,8 @@ const movieSchema = new Schema<IMovieDocument>(
 
 movieSchema.index({ movieName: 'text', description: 'text' })
 movieSchema.index({ genre: 'text' })
+movieSchema.index({ isActive: 1, createdAt: -1 })
+movieSchema.index({ views: -1 })
+movieSchema.index({ categoryId: 1 })
 
 export default mongoose.model<IMovieDocument>('Movie', movieSchema)

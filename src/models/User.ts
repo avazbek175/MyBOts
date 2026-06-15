@@ -21,6 +21,7 @@ const userSchema = new Schema<IUserDocument>(
     isBanned: { type: Boolean, default: false },
     banReason: { type: String },
     lastActivity: { type: Date, default: Date.now },
+    lastSubscriptionCheck: { type: Date },
   },
   { timestamps: true }
 )

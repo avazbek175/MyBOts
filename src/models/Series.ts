@@ -23,5 +23,7 @@ const seriesSchema = new Schema<ISeriesDocument>(
 
 seriesSchema.index({ seriesName: 'text', description: 'text' })
 seriesSchema.index({ genre: 'text' })
+seriesSchema.index({ isActive: 1, createdAt: -1 })
+seriesSchema.index({ categoryId: 1 })
 
 export default mongoose.model<ISeriesDocument>('Series', seriesSchema)

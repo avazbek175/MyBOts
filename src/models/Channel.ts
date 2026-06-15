@@ -12,5 +12,6 @@ const channelSchema = new Schema<IChannelDocument>(
     createdAt: { type: Date, default: Date.now },
   }
 )
+channelSchema.index({ isActive: 1 })
 
 export default mongoose.model<IChannelDocument>('Channel', channelSchema)
