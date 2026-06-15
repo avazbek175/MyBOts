@@ -84,7 +84,7 @@ export async function handlePremiumConfirm(ctx: BotContext) {
     const description = `${plan.label} - ${plan.unit === 'lifetime' ? 'Butun umr' : `${plan.duration} kun`}`
     const payload = JSON.stringify({ paymentId, userId, plan: planKey })
 
-    const invoiceLink = await ctx.telegram.createInvoiceLink({
+    await ctx.replyWithInvoice({
       title,
       description,
       payload,
@@ -93,15 +93,13 @@ export async function handlePremiumConfirm(ctx: BotContext) {
       prices: [{ label: plan.label, amount: plan.stars }],
     })
 
-    await PaymentService.createPayment(userId, planKey, plan.stars)
-
     await ctx.editMessageText(
-      `${EMOJIS.premium} <b>To'lov uchun havola:</b>\n\n${invoiceLink}\n\n${EMOJIS.warning} Havolani bosing va to'lovni amalga oshiring.`,
+      `${EMOJIS.premium} <b>To'lov tayyor</b>\n\nYangi xabarda invoice jo'natildi. To'lovni amalga oshirish uchun "To'lov" tugmasini bosing.`,
       { parse_mode: 'HTML' }
     )
   } catch (error) {
     logger.error(error, 'handlePremiumConfirm error')
-    await ctx.reply(`${EMOJIS.error} To'lov havolasini yaratishda xatolik.`)
+    await ctx.reply(`${EMOJIS.error} To'lov yaratishda xatolik.`)
   }
 }
 
