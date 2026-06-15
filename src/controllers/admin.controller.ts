@@ -64,7 +64,7 @@ async function adminReply(ctx: BotContext, text: string, keyboard: any) {
 }
 
 export async function handleAdminPanel(ctx: BotContext) {
-  await ctx.answerCbQuery?.()
+  if (ctx.callbackQuery) await ctx.answerCbQuery()
   const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
   const name = user?.firstName || ctx.from?.first_name || 'Foydalanuvchi'
   const role = user?.role || 'user'

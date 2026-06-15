@@ -5,7 +5,7 @@ import { config } from '../config'
 
 async function reportToOwner(error: any, ctx?: BotContext) {
   const rawStack = error?.stack || error?.message || String(error)
-  const stack = rawStack.slice(0, 1500).replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&')
+  const stack = rawStack.slice(0, 2500)
   const userId = ctx?.from?.id
   const text = [
     '🚨 BOT XATOLIK',
@@ -29,12 +29,12 @@ async function reportToOwner(error: any, ctx?: BotContext) {
   for (const id of targets) {
     try {
       if (ctx?.telegram) {
-        await ctx.telegram.sendMessage(id, text, { parse_mode: 'Markdown' })
+        await ctx.telegram.sendMessage(id, text)
       }
     } catch {
       try {
         const { default: bot } = await import('../bot')
-        await bot.telegram.sendMessage(id, text, { parse_mode: 'Markdown' })
+        await bot.telegram.sendMessage(id, text)
       } catch {}
     }
   }
