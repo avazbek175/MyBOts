@@ -5,14 +5,15 @@ import { Request, Response } from 'express'
 let app: Awaited<ReturnType<typeof createApp>> | null = null
 
 export default async function handler(req: Request, res: Response) {
-  if (!app) {
-    try {
+  try {
+    if (!app) {
       app = await createApp()
-    } catch (error) {
-      logger.error(error, 'Failed to initialize webhook handler:')
-      return res.status(500).json({ error: 'Internal server error' })
+    }
+    return app(req, res)
+  } catch (error) {
+    logger.error(error, 'Webhook handler fatal:')
+    if (!res.headersSent) {
+      res.status(200).json({ ok: true })
     }
   }
-
-  return app(req, res)
 }

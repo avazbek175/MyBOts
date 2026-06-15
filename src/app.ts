@@ -2,20 +2,51 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import { Telegraf } from 'telegraf'
+import mongoose from 'mongoose'
 import { config } from './config'
-import { connectDatabase } from './config/database'
 import { getRedis, closeRedis } from './config/redis'
 import { logger } from './utils/logger'
 
-let bot: Telegraf
+let bot: Telegraf | null = null
+let dbConnected = false
+let appInitialized = false
+
+async function ensureDbConnection(): Promise<void> {
+  if (dbConnected && mongoose.connection.readyState === 1) return
+  try {
+    mongoose.set('strictQuery', true)
+    await mongoose.connect(config.mongodb.uri, {
+      maxPoolSize: 5,
+      minPoolSize: 0,
+      socketTimeoutMS: 30000,
+      serverSelectionTimeoutMS: 8000,
+      retryWrites: true,
+      connectTimeoutMS: 8000,
+    })
+    dbConnected = true
+    logger.info('MongoDB connected')
+  } catch (error) {
+    dbConnected = false
+    logger.error(error, 'MongoDB connection failed')
+    throw error
+  }
+}
+
+async function lazyInit(): Promise<void> {
+  if (appInitialized) return
+  try {
+    await ensureDbConnection()
+    getRedis()
+    const { default: botInstance } = await import('./bot')
+    bot = botInstance
+    appInitialized = true
+  } catch (error) {
+    logger.error(error, 'App initialization failed')
+    throw error
+  }
+}
 
 export async function createApp(): Promise<express.Application> {
-  await connectDatabase()
-  getRedis()
-
-  const { default: botInstance } = await import('./bot')
-  bot = botInstance
-
   const app = express()
 
   app.use(helmet())
@@ -24,16 +55,19 @@ export async function createApp(): Promise<express.Application> {
 
   app.get('/', (_req, res) => {
     res.json({
-      status: 'ok',
+      status: dbConnected ? 'ok' : 'starting',
       name: 'Ultimate Movie Stream Bot',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
     })
   })
 
-  app.get('/health', (_req, res) => {
+  app.get('/health', async (_req, res) => {
+    const mongoState = ['disconnected', 'connected', 'connecting', 'disconnecting']
     res.json({
-      status: 'healthy',
+      status: dbConnected ? 'healthy' : 'degraded',
+      mongo: mongoState[mongoose.connection.readyState] || 'unknown',
+      bot: bot !== null,
       uptime: process.uptime(),
       memory: process.memoryUsage(),
     })
@@ -41,6 +75,11 @@ export async function createApp(): Promise<express.Application> {
 
   app.post('/api/webhook', async (req, res) => {
     try {
+      await lazyInit()
+      if (!bot) {
+        res.sendStatus(200)
+        return
+      }
       await bot.handleUpdate(req.body)
       res.sendStatus(200)
     } catch (err) {
@@ -49,60 +88,33 @@ export async function createApp(): Promise<express.Application> {
     }
   })
 
-  if (config.app.nodeEnv === 'development') {
-    app.post('/api/clear-webhook', async (_req, res) => {
-      await bot.telegram.deleteWebhook()
-      res.json({ message: 'Webhook cleared' })
-    })
-  }
-
   return app
 }
 
-async function startServer(): Promise<void> {
-  try {
-    const app = await createApp()
-
-    if (config.app.nodeEnv === 'development') {
-      await bot.telegram.deleteWebhook()
-      await bot.telegram.setWebhook(`${config.bot.webhookUrl}/api/webhook`)
-      logger.info(`Webhook set to ${config.bot.webhookUrl}/api/webhook`)
-    }
-
-    app.listen(config.app.port, () => {
-      logger.info(`Server running on port ${config.app.port}`)
-      logger.info(`Environment: ${config.app.nodeEnv}`)
-      logger.info(`Bot: @${config.bot.username}`)
-    })
-  } catch (error) {
-    logger.error(error, 'Failed to start server:')
-    process.exit(1)
-  }
-}
-
 process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received. Shutting down gracefully...')
+  logger.info('SIGTERM received')
   await closeRedis()
-  process.exit(0)
-})
-
-process.on('SIGINT', async () => {
-  logger.info('SIGINT received. Shutting down gracefully...')
-  await closeRedis()
-  process.exit(0)
+  await mongoose.disconnect()
 })
 
 process.on('unhandledRejection', (reason) => {
   logger.error(reason, 'Unhandled Rejection:')
 })
 
-process.on('uncaughtException', (error) => {
-  logger.error(error, 'Uncaught Exception:')
-  process.exit(1)
-})
-
 if (require.main === module) {
-  startServer()
+  (async () => {
+    try {
+      await lazyInit()
+      const app = await createApp()
+      app.listen(config.app.port, () => {
+        logger.info(`Server running on port ${config.app.port}`)
+        logger.info(`Bot: @${config.bot.username}`)
+      })
+    } catch (error) {
+      logger.error(error, 'Failed to start:')
+      process.exit(1)
+    }
+  })()
 }
 
-export { startServer }
+export { lazyInit }

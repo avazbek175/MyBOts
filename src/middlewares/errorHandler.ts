@@ -1,13 +1,15 @@
 import { BotContext } from '../types'
 import { logger } from '../utils/logger'
+import mongoose from 'mongoose'
 
 export async function errorHandlerMiddleware(ctx: BotContext, next: () => Promise<void>) {
   try {
     await next()
-  } catch (error) {
+  } catch (error: any) {
     logger.error(error, 'Error in middleware')
+    const msg = getErrorMessage(error)
     try {
-      await ctx.reply('Xatolik yuz berdi. Iltimos keyinroq urinib ko\'ring.')
+      await ctx.reply(msg)
     } catch {}
   }
 }
@@ -16,7 +18,26 @@ export async function handleError(error: unknown, ctx?: BotContext) {
   logger.error(error, 'Unhandled error')
   if (ctx) {
     try {
-      await ctx.reply('Xatolik yuz berdi. Iltimos keyinroq urinib ko\'ring.')
+      await ctx.reply(getErrorMessage(error))
     } catch {}
   }
+}
+
+function getErrorMessage(error: any): string {
+  const code = error?.code || error?.name || ''
+  const msg = (error?.message || '').toLowerCase()
+
+  if (code === 'ECONNREFUSED' || msg.includes('connect') || msg.includes('mongoose')) {
+    return '🚫 Server bilan bog\'lanishda xatolik. Administratorga murojaat qiling.'
+  }
+  if (msg.includes('etimedout') || msg.includes('timeout') || msg.includes('timed out')) {
+    return '⏱ Server juda sekin javob berdi. Qayta urinib ko\'ring.'
+  }
+  if (code === 'EFATAL' || msg.includes('fatal')) {
+    return '❌ Jiddiy xatolik. Iltimos keyinroq urinib ko\'ring.'
+  }
+  if (mongoose.connection.readyState !== 1) {
+    return '🔄 Ma\'lumotlar bazasiga ulanmoqda... Bir ozdan so\'ng qayta urinib ko\'ring.'
+  }
+  return '❌ Xatolik yuz berdi. Iltimos qayta urinib ko\'ring.'
 }
