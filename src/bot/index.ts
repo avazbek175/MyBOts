@@ -1,5 +1,6 @@
 import { Telegraf, session } from 'telegraf'
 import { config } from '../config'
+import { BotContext } from '../types'
 import { authMiddleware } from '../middlewares/auth'
 import { subscriptionMiddleware } from '../middlewares/subscription'
 import { errorHandlerMiddleware as errorHandler } from '../middlewares/errorHandler'
@@ -74,7 +75,8 @@ bot.command('ping', async (ctx) => {
   await ctx.reply('🏓 *Pong!*\n\nBot ishlayapti ✅', { parse_mode: 'Markdown' })
 })
 
-bot.command('debug', async (ctx) => {
+bot.command('debug', async (ctx: BotContext) => {
+  if (!ctx.from) return
   const owners = config.owner.ids
   if (!owners.includes(ctx.from.id)) {
     await ctx.reply('🚫 Bu buyruq faqat owner uchun.')
