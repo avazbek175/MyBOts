@@ -1,0 +1,48 @@
+{
+  "name": "ultimate-movie-stream-bot",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Telegram Movie & Series Streaming Bot (Netflix-like)",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "mongoose": "^8.9.0",
+    "ioredis": "^5.4.1",
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "node-cron": "^3.0.3",
+    "uuid": "^10.0.0",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.3.0",
+    "zod": "^3.23.8",
+    "fuse.js": "^7.0.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.0",
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node-cron": "^3.0.11",
+    "@types/uuid": "^10.0.0",
+    "@types/lodash": "^4.17.12",
+    "typescript": "^5.6.0",
+    "tsx": "^4.19.0",
+    "eslint": "^9.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "prettier": "^3.3.0"
+  }
+}
