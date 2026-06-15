@@ -3,6 +3,7 @@ import { config } from '../config'
 import { BotContext } from '../types'
 import { MovieService } from '../services/movie.service'
 import { SeriesService } from '../services/series.service'
+import { SettingService } from '../services/setting.service'
 import { formatMovieInfo } from '../utils/formatters'
 import { movieDetailKeyboard } from '../keyboards/movie'
 import { authMiddleware } from '../middlewares/auth'
@@ -56,7 +57,9 @@ import {
   handleAdminBroadcast, handleAdminSendBroadcast,
   handleAdminStats,
   handleAdminModerators, handleAdminAddAdmin, handleAdminRemoveAdmin, handleAdminPermissions,
-  handleAdminSettings, handleAdminLogs, handleAdminLogsView, handleAdminPagination,
+  handleAdminSettings, handleAdminSettingsStatus, handleAdminSettingsMaintenance,
+  handleAdminSettingsPageSize, handleAdminSettingsPageSizeProcess,
+  handleAdminLogs, handleAdminLogsView, handleAdminPagination,
   handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo, handleAdminAddMovieCodeSelect,
   handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
   handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
@@ -88,6 +91,20 @@ bot.use(async (ctx, next) => {
   const txt = ctx.message && 'text' in ctx.message ? ctx.message.text : ''
   if (txt === '/start') return next()
   return subscriptionMiddleware(ctx, next)
+})
+
+bot.use(async (ctx, next) => {
+  try {
+    const maintenance = await SettingService.isMaintenanceMode()
+    if (maintenance) {
+      const owners = config.owner.ids
+      if (!owners.includes(ctx.from?.id || 0)) {
+        await ctx.reply('🔧 Bot texnik ishlar uchun vaqtincha to\'xtatilgan.')
+        return
+      }
+    }
+  } catch {}
+  return next()
 })
 
 bot.command('ping', async (ctx) => {
@@ -235,6 +252,9 @@ bot.action(/^admin_add_admin:(.+)$/, handleAdminAddAdmin)
 bot.action(/^admin_remove_admin:(.+)$/, handleAdminRemoveAdmin)
 bot.action(/^admin_permissions:(.+)$/, handleAdminPermissions)
 bot.action('admin_settings', handleAdminSettings)
+bot.action('admin_settings_status', handleAdminSettingsStatus)
+bot.action('admin_settings_maintenance', handleAdminSettingsMaintenance)
+bot.action('admin_settings_pagesize', handleAdminSettingsPageSize)
 bot.action('admin_logs', handleAdminLogs)
 bot.action(/^admin_logs_(admin|users|payments|errors)$/, handleAdminLogsView)
 bot.action(/^admin_page:([a-z_]+):(\d+)$/, handleAdminPagination)
@@ -299,6 +319,8 @@ bot.on('text', async (ctx) => {
       await handleAdminAddChannelProcess(ctx)
     } else if (step.startsWith('admin_edit_movie_')) {
       await handleAdminEditMovieProcess(ctx)
+    } else if (step === 'admin_settings_pagesize') {
+      await handleAdminSettingsPageSizeProcess(ctx)
     } else if (step.startsWith('admin_')) {
       await ctx.reply('❌ Noma\'lum admin qadam.')
     }

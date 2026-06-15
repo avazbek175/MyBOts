@@ -9,6 +9,7 @@ import { EpisodeService } from '../services/episode.service'
 import { PaymentService } from '../services/payment.service'
 import { StatsService } from '../services/stats.service'
 import { BroadcastService } from '../services/broadcast.service'
+import { SettingService } from '../services/setting.service'
 
 import {
   adminDashboardKeyboard,
@@ -1903,12 +1904,110 @@ export async function handleAdminPermissions(ctx: BotContext) {
 export async function handleAdminSettings(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    await ctx.editMessageText(`${EMOJIS.settings} <b>Sozlamalar</b>\n\nKerakli bo'limni tanlang:`, {
+    const maintenance = await SettingService.isMaintenanceMode()
+    const pageSize = await SettingService.getPageSize()
+    const text = [
+      `${EMOJIS.settings} <b>Sozlamalar</b>\n\n`,
+      `Kerakli bo'limni tanlang:\n\n`,
+      `🤖 Bot holati: <b>${maintenance ? '🔧 Xizmat rejimida' : '✅ Faol'}</b>\n`,
+      `📄 Sahifa hajmi: <b>${pageSize} ta</b>\n`,
+    ].join('')
+    await ctx.editMessageText(text, {
       parse_mode: 'HTML',
-      reply_markup: adminSettingsKeyboard().reply_markup,
+      reply_markup: adminSettingsKeyboard(pageSize).reply_markup,
     })
   } catch (error) {
     logger.error(error, 'handleAdminSettings error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSettingsStatus(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const maintenance = await SettingService.isMaintenanceMode()
+    const pageSize = await SettingService.getPageSize()
+    const { default: Movie } = await import('../models/Movie')
+    const { default: User } = await import('../models/User')
+    const totalMovies = await Movie.countDocuments({ isActive: true })
+    const totalUsers = await User.countDocuments()
+
+    const text = [
+      `${EMOJIS.settings} <b>Bot holati</b>\n\n`,
+      `🤖 Bot: <b>✅ Ishlamoqda</b>\n`,
+      `🔧 Xizmat rejimi: <b>${maintenance ? 'Yoqilgan' : 'O\'chirilgan'}</b>\n`,
+      `📊 Jami kinolar: <b>${totalMovies}</b>\n`,
+      `👥 Jami foydalanuvchilar: <b>${totalUsers}</b>\n`,
+      `📄 Sahifa hajmi: <b>${pageSize}</b>\n`,
+    ].join('')
+
+    const { Markup } = require('telegraf')
+    await ctx.editMessageText(text, {
+      parse_mode: 'HTML',
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_settings')],
+      ]).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleAdminSettingsStatus error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSettingsMaintenance(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const newState = await SettingService.toggleMaintenanceMode()
+    await logAdminAction(ctx, 'settings_toggle_maintenance', String(newState))
+    await ctx.editMessageText(
+      `${EMOJIS.success} Xizmat rejimi ${newState ? 'yoqildi' : 'o\'chirildi'}.\n\n` +
+      `${newState ? '🔧 Bot xizmat rejimiga o\'tkazildi. Foydalanuvchilar xatolik xabarini oladi.' : '✅ Bot normal rejimda ishlashni davom ettiradi.'}`,
+      { parse_mode: 'HTML', reply_markup: { inline_keyboard: [[{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_settings' }]] } }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminSettingsMaintenance error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSettingsPageSize(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    if (ctx.session) {
+      ctx.session.data = { step: 'admin_settings_pagesize' }
+    }
+    await ctx.editMessageText(
+      `${EMOJIS.settings} <b>Sahifa hajmini o'zgartirish</b>\n\n` +
+      `Hozirgi: <b>${await SettingService.getPageSize()}</b>\n\n` +
+      `Yangi sahifa hajmini kiriting (1-50):\n\n` +
+      `${EMOJIS.cross} Bekor qilish uchun /cancel`,
+      { parse_mode: 'HTML' }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminSettingsPageSize error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSettingsPageSizeProcess(ctx: BotContext) {
+  try {
+    const text = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
+    if (!text) {
+      await ctx.reply(`${EMOJIS.error} Qiymat kiritilmadi.`)
+      return
+    }
+    const size = parseInt(text)
+    if (isNaN(size) || size < 1 || size > 50) {
+      await ctx.reply(`${EMOJIS.error} Noto'g'ri qiymat. 1 dan 50 gacha son kiriting.`)
+      return
+    }
+    await SettingService.setPageSize(size)
+    await logAdminAction(ctx, 'settings_change_pagesize', String(size))
+    ctx.session!.data = { step: null }
+    await ctx.reply(`${EMOJIS.success} Sahifa hajmi <b>${size}</b> ga o'zgartirildi!`, { parse_mode: 'HTML' })
+    await handleAdminSettings(ctx)
+  } catch (error) {
+    logger.error(error, 'handleAdminSettingsPageSizeProcess error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
   }
 }
