@@ -1,6 +1,9 @@
 import { Telegraf, session } from 'telegraf'
 import { config } from '../config'
 import { BotContext } from '../types'
+import { MovieService } from '../services/movie.service'
+import { formatMovieInfo } from '../utils/formatters'
+import { movieDetailKeyboard } from '../keyboards/movie'
 import { authMiddleware } from '../middlewares/auth'
 import { subscriptionMiddleware } from '../middlewares/subscription'
 import { errorHandlerMiddleware as errorHandler } from '../middlewares/errorHandler'
@@ -136,7 +139,7 @@ bot.action(/^season_episodes:(.+)$/, handleEpisodeList)
 bot.action(/^episode_play:(.+)$/, handleEpisodePlay)
 bot.action(/^series_save:(.+)$/, handleSeriesSave)
 bot.action(/^series_page:(\d+)$/, handleSeriesPagination)
-bot.action(/^episode_page:(\d+)$/, handleEpisodePagination)
+bot.action(/^episode_page:(.+)$/, handleEpisodePagination)
 
 bot.action('categories', handleCategoryList)
 bot.action(/^category:(.+)$/, handleCategorySelect)
@@ -292,6 +295,15 @@ bot.on('text', async (ctx) => {
     session.data.searchMode = null
     await handleSearchResults(ctx, ctx.message.text, 1)
     return
+  }
+
+  const text = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
+  if (text) {
+    const movie = await MovieService.getByCode(text)
+    if (movie) {
+      await ctx.reply(formatMovieInfo(movie), { parse_mode: 'HTML', reply_markup: movieDetailKeyboard(movie.movieCode).reply_markup })
+      return
+    }
   }
 
   await handleSearchResults(ctx, ctx.message.text, 1)

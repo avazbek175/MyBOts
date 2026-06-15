@@ -4,9 +4,9 @@ import { EMOJIS } from '../config/constants'
 
 export function seriesDetailKeyboard(seriesCode: string) {
   return Markup.inlineKeyboard([
-    [Markup.button.callback(`${EMOJIS.season} Fasllarni ko'rish`, `series_seasons_${seriesCode}`)],
+    [Markup.button.callback(`${EMOJIS.season} Fasllarni ko'rish`, `series_seasons:${seriesCode}`)],
     [
-      Markup.button.callback(`${EMOJIS.heart} Saqlash`, `series_save_${seriesCode}`),
+      Markup.button.callback(`${EMOJIS.heart} Saqlash`, `series_save:${seriesCode}`),
       Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back'),
     ],
   ])
@@ -14,7 +14,7 @@ export function seriesDetailKeyboard(seriesCode: string) {
 
 export function seasonListKeyboard(seriesCode: string, seasons: ISeason[]) {
   const buttons = seasons.map((season) => [
-    Markup.button.callback(`${EMOJIS.season} ${season.seasonNumber}-Fasl`, `season_${seriesCode}_${season.seasonNumber}`),
+    Markup.button.callback(`${EMOJIS.season} ${season.seasonNumber}-Fasl`, `season_episodes:${seriesCode}_${season.seasonNumber}`),
   ])
 
   buttons.push([Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back')])
@@ -26,7 +26,7 @@ export function episodeListKeyboard(seasonId: string, episodes: IEpisode[], page
   const buttons = episodes.map((episode) => [
     Markup.button.callback(
       `${EMOJIS.episode} ${episode.episodeNumber}-Qism${episode.title ? ` - ${episode.title}` : ''}`,
-      `episode_${seasonId}_${episode.episodeNumber}`,
+      `episode_play:${seasonId}_${episode.episodeNumber}`,
     ),
   ])
 
@@ -34,13 +34,13 @@ export function episodeListKeyboard(seasonId: string, episodes: IEpisode[], page
     const navButtons: ReturnType<typeof Markup.button.callback>[] = []
 
     if (page > 1) {
-      navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `episodes_page_${seasonId}_${page - 1}`))
+      navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `episode_page:${seasonId}_${page - 1}`))
     }
 
     navButtons.push(Markup.button.callback(`${page}/${totalPages}`, 'page_info'))
 
     if (page < totalPages) {
-      navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `episodes_page_${seasonId}_${page + 1}`))
+      navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `episode_page:${seasonId}_${page + 1}`))
     }
 
     buttons.push(navButtons)

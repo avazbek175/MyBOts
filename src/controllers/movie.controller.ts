@@ -40,8 +40,8 @@ export async function handleMovieList(ctx: BotContext) {
 export async function handleMovieDetail(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const movieCode = data.replace('movie_', '')
+    const match = ctx.match as RegExpExecArray
+    const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
 
     if (!movie) {
@@ -152,8 +152,8 @@ export async function handleMovieSearchByYear(ctx: BotContext) {
 export async function handleMoviePlay(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const movieCode = data.replace('movie_view_', '')
+    const match = ctx.match as RegExpExecArray
+    const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
 
     if (!movie) {
@@ -182,8 +182,8 @@ export async function handleMoviePlay(ctx: BotContext) {
 export async function handleMovieDownload(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const movieCode = data.replace('movie_download_', '')
+    const match = ctx.match as RegExpExecArray
+    const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
 
     if (!movie) {
@@ -205,8 +205,8 @@ export async function handleMovieDownload(ctx: BotContext) {
 export async function handleMoviePagination(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const page = parseInt(data.replace('movies_page_', ''), 10)
+    const match = ctx.match as RegExpExecArray
+    const page = parseInt(match?.[1] || '1', 10)
     if (isNaN(page) || page < 1) return
 
     const { movies, total, totalPages } = await MovieService.getAll(page, PAGINATION.pageSize)
@@ -230,8 +230,8 @@ export async function handleMoviePagination(ctx: BotContext) {
 export async function handleMovieSave(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const movieCode = data.replace('movie_save_', '')
+    const match = ctx.match as RegExpExecArray
+    const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
     if (!movie) {
       await ctx.answerCbQuery?.('Kino topilmadi.', { show_alert: true })

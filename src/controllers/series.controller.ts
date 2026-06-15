@@ -43,8 +43,8 @@ export async function handleSeriesList(ctx: BotContext) {
 export async function handleSeriesDetail(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const seriesCode = data.replace('series_', '')
+    const match = ctx.match as RegExpExecArray
+    const seriesCode = match?.[1] || ''
     const series = await SeriesService.getByCode(seriesCode)
 
     if (!series) {
@@ -82,8 +82,8 @@ export async function handleSeriesDetail(ctx: BotContext) {
 export async function handleSeasonList(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const seriesCode = data.replace('series_seasons_', '')
+    const match = ctx.match as RegExpExecArray
+    const seriesCode = match?.[1] || ''
     const series = await SeriesService.getByCode(seriesCode)
 
     if (!series) {
@@ -115,10 +115,11 @@ export async function handleSeasonList(ctx: BotContext) {
 export async function handleEpisodeList(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const parts = data.replace('season_', '').split('_')
-    const seriesCode = parts[0]
-    const seasonNumber = parseInt(parts[1], 10)
+    const match = ctx.match as RegExpExecArray
+    const raw = match?.[1] || ''
+    const parts = raw.split('_')
+    const seriesCode = parts[0] || ''
+    const seasonNumber = parseInt(parts[1] || '0', 10)
 
     const series = await SeriesService.getByCode(seriesCode)
     if (!series) {
@@ -159,10 +160,11 @@ export async function handleEpisodeList(ctx: BotContext) {
 export async function handleEpisodePlay(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const parts = data.replace('episode_', '').split('_')
-    const seasonId = parts[0]
-    const episodeNumber = parseInt(parts[1], 10)
+    const match = ctx.match as RegExpExecArray
+    const raw = match?.[1] || ''
+    const parts = raw.split('_')
+    const seasonId = parts[0] || ''
+    const episodeNumber = parseInt(parts[1] || '0', 10)
 
     const episode = await EpisodeService.getByNumber(seasonId, episodeNumber)
     if (!episode) {
@@ -265,8 +267,8 @@ export async function handleSeriesSearchByYear(ctx: BotContext) {
 export async function handleSeriesPagination(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const page = parseInt(data.replace('series_page_', ''), 10)
+    const match = ctx.match as RegExpExecArray
+    const page = parseInt(match?.[1] || '1', 10)
     if (isNaN(page) || page < 1) return
 
     const { seriesList, total, totalPages } = await SeriesService.getAll(page, PAGINATION.pageSize)
@@ -290,8 +292,8 @@ export async function handleSeriesPagination(ctx: BotContext) {
 export async function handleSeriesSave(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const seriesCode = data.replace('series_save_', '')
+    const match = ctx.match as RegExpExecArray
+    const seriesCode = match?.[1] || ''
     const series = await SeriesService.getByCode(seriesCode)
     if (!series) {
       await ctx.answerCbQuery?.('Serial topilmadi.', { show_alert: true })
@@ -313,10 +315,11 @@ export async function handleSeriesSave(ctx: BotContext) {
 export async function handleEpisodePagination(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const parts = data.replace('episodes_page_', '').split('_')
-    const seasonId = parts[0]
-    const page = parseInt(parts[1], 10)
+    const match = ctx.match as RegExpExecArray
+    const raw = match?.[1] || ''
+    const parts = raw.split('_')
+    const seasonId = parts[0] || ''
+    const page = parseInt(parts[1] || '1', 10)
     if (isNaN(page) || page < 1) return
 
     const { episodes, total, totalPages } = await EpisodeService.getBySeason(seasonId, page, PAGINATION.pageSize)
@@ -339,14 +342,14 @@ export async function handleEpisodePagination(ctx: BotContext) {
 function seriesListKeyboard(seriesList: any[], page: number, totalPages: number) {
   const { Markup } = require('telegraf')
   const buttons = seriesList.map((s, index) => [
-    Markup.button.callback(`${index + 1 + (page - 1) * 10}. ${s.seriesName}`, `series_${s.seriesCode}`),
+    Markup.button.callback(`${index + 1 + (page - 1) * 10}. ${s.seriesName}`, `series_detail:${s.seriesCode}`),
   ])
 
   if (totalPages > 1) {
     const navButtons: ReturnType<typeof Markup.button.callback>[] = []
-    if (page > 1) navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `series_page_${page - 1}`))
+    if (page > 1) navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `series_page:${page - 1}`))
     navButtons.push(Markup.button.callback(`${page}/${totalPages}`, 'page_info'))
-    if (page < totalPages) navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `series_page_${page + 1}`))
+    if (page < totalPages) navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `series_page:${page + 1}`))
     buttons.push(navButtons)
   }
 

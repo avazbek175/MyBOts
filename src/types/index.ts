@@ -168,4 +168,4 @@ export interface IAdmin {
 }
 
 import { Context } from 'telegraf'
-export type BotContext = Context & { session?: any }
+export type BotContext = Context & { session?: any; match?: RegExpExecArray }
