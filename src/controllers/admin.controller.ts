@@ -396,9 +396,15 @@ export async function handleAdminEditMovieField(ctx: BotContext) {
       description: 'yangi tavsifini',
     }
 
+    const { Markup } = require('telegraf')
     await ctx.editMessageText(
       `${EMOJIS.pencil} <b>Kinoni tahrirlash</b>\n\nKod: <code>${movieCode}</code>\n\n${fieldNames[field] || 'yangi qiymatini'} kiriting:\n\n${EMOJIS.cross} Bekor qilish uchun /cancel`,
-      { parse_mode: 'HTML' }
+      {
+        parse_mode: 'HTML',
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback(`${EMOJIS.back} Orqaga`, `admin_movie_edit_select:${movieCode}`)],
+        ]).reply_markup,
+      }
     )
   } catch (error) {
     logger.error(error, 'handleAdminEditMovieField error')
@@ -1976,12 +1982,18 @@ export async function handleAdminSettingsPageSize(ctx: BotContext) {
     if (ctx.session) {
       ctx.session.data = { step: 'admin_settings_pagesize' }
     }
+    const { Markup } = require('telegraf')
     await ctx.editMessageText(
       `${EMOJIS.settings} <b>Sahifa hajmini o'zgartirish</b>\n\n` +
       `Hozirgi: <b>${await SettingService.getPageSize()}</b>\n\n` +
       `Yangi sahifa hajmini kiriting (1-50):\n\n` +
       `${EMOJIS.cross} Bekor qilish uchun /cancel`,
-      { parse_mode: 'HTML' }
+      {
+        parse_mode: 'HTML',
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_settings')],
+        ]).reply_markup,
+      }
     )
   } catch (error) {
     logger.error(error, 'handleAdminSettingsPageSize error')
