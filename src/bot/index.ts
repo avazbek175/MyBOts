@@ -54,7 +54,7 @@ import {
   handleAdminStats,
   handleAdminModerators, handleAdminAddAdmin, handleAdminRemoveAdmin, handleAdminPermissions,
   handleAdminSettings, handleAdminLogs, handleAdminPagination,
-  handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo,
+  handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo, handleAdminAddMovieCodeSelect,
   handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
   handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
   handleAdminRefundProcess, handleAdminSendBroadcastProcess, handleAdminAddAdminProcess,
@@ -184,6 +184,7 @@ bot.action('admin_panel', handleAdminPanel)
 bot.action('admin_dashboard', handleAdminDashboard)
 bot.action('admin_movies', handleAdminMovies)
 bot.action('admin_add_movie', handleAdminAddMovie)
+bot.action(/^admin_add_movie_code_select:(.+)$/, handleAdminAddMovieCodeSelect)
 bot.action(/^admin_delete_movie:(.+)$/, handleAdminDeleteMovie)
 bot.action(/^admin_edit_movie:(.+)$/, handleAdminEditMovie)
 bot.action('admin_series', handleAdminSeries)

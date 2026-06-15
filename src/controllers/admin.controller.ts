@@ -124,15 +124,54 @@ export async function handleAdminAddMovie(ctx: BotContext) {
         movieData: {},
       }
     }
+
+    const recent = await MovieService.getRecentCodes(10)
+    const { Markup } = require('telegraf')
+    const buttons = recent.length > 0
+      ? recent.map((m) => [Markup.button.callback(m.movieCode, `admin_add_movie_code_select:${m.movieCode}`)])
+      : []
+
     await ctx.editMessageText(
       `${EMOJIS.movie} <b>Yangi kino qo'shish</b>\n\n` +
       `1/3: Kino kodini kiriting.\n` +
       `Misol: <code>AVATAR01</code>\n\n` +
       `${EMOJIS.cross} Bekor qilish uchun /cancel`,
-      { parse_mode: 'HTML' }
+      {
+        parse_mode: 'HTML',
+        reply_markup: Markup.inlineKeyboard([
+          ...buttons,
+          [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_movies')],
+        ]).reply_markup,
+      }
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddMovie error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminAddMovieCodeSelect(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const code = match?.[1] || ''
+    if (!code) return
+
+    if (ctx.session) {
+      ctx.session.data = {
+        step: 'admin_add_movie_name',
+        movieData: { movieCode: code },
+      }
+    }
+    await ctx.editMessageText(
+      `${EMOJIS.movie} Kod: <code>${code}</code>\n\n` +
+      `2/3: Kino nomini kiriting.\n` +
+      `Misol: <b>Avatar 2</b>\n\n` +
+      `${EMOJIS.cross} Bekor qilish uchun /cancel`,
+      { parse_mode: 'HTML' }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminAddMovieCodeSelect error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
   }
 }
@@ -208,7 +247,7 @@ export async function handleAdminAddMovieVideo(ctx: BotContext) {
         parse_mode: 'HTML',
         reply_markup: Markup.inlineKeyboard([
           [Markup.button.callback(`${EMOJIS.movie} Yana kino qo'shish`, 'admin_add_movie')],
-          [Markup.button.callback(`${EMOJIS.back} Asosiy menyu`, 'main_menu')],
+          [Markup.button.callback(`${EMOJIS.back} Admin panel`, 'admin_dashboard')],
         ]).reply_markup,
       }
     )

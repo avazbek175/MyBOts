@@ -81,6 +81,14 @@ export class MovieService {
     await Movie.findOneAndUpdate({ movieCode }, { $inc: { downloads: 1 } })
   }
 
+  static async getRecentCodes(limit: number = 10): Promise<Pick<IMovie, 'movieCode'>[]> {
+    const movies = await Movie.find({}, { movieCode: 1, _id: 0 })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean()
+    return movies
+  }
+
   static async getTopRated(limit: number = 10): Promise<IMovie[]> {
     const cacheKey = `${CACHE_PREFIX}top_rated`
     const cached = await cacheGet<IMovie[]>(cacheKey)
