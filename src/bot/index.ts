@@ -53,7 +53,7 @@ import {
   handleAdminBroadcast, handleAdminSendBroadcast,
   handleAdminStats,
   handleAdminModerators, handleAdminAddAdmin, handleAdminRemoveAdmin, handleAdminPermissions,
-  handleAdminSettings, handleAdminLogs, handleAdminPagination,
+  handleAdminSettings, handleAdminLogs, handleAdminLogsView, handleAdminPagination,
   handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo, handleAdminAddMovieCodeSelect,
   handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
   handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
@@ -215,6 +215,7 @@ bot.action(/^admin_remove_admin:(.+)$/, handleAdminRemoveAdmin)
 bot.action(/^admin_permissions:(.+)$/, handleAdminPermissions)
 bot.action('admin_settings', handleAdminSettings)
 bot.action('admin_logs', handleAdminLogs)
+bot.action(/^admin_logs_(admin|users|payments|errors)$/, handleAdminLogsView)
 bot.action(/^admin_page:([a-z_]+):(\d+)$/, handleAdminPagination)
 
 bot.on('video', async (ctx) => {

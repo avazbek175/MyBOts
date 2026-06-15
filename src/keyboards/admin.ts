@@ -103,7 +103,10 @@ export function adminSettingsKeyboard() {
 
 export function adminLogsKeyboard() {
   return Markup.inlineKeyboard([
-    [Markup.button.callback(`📝 Loglar`, 'admin_logs')],
+    [Markup.button.callback(`🔧 Admin amallari`, 'admin_logs_admin')],
+    [Markup.button.callback(`👤 Foydalanuvchi amallari`, 'admin_logs_users')],
+    [Markup.button.callback(`💳 To'lov amallari`, 'admin_logs_payments')],
+    [Markup.button.callback(`❌ Xatoliklar`, 'admin_logs_errors')],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_dashboard')],
   ])
 }

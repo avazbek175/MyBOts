@@ -1786,26 +1786,34 @@ export async function handleAdminLogs(ctx: BotContext) {
 export async function handleAdminLogsView(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
+    const match = ctx.match as RegExpExecArray
+    const filterType = match?.[1] || ''
     let filter: Record<string, unknown> = {}
 
-    if (data === 'admin_logs_admin') filter = { action: { $regex: /^admin_/ } }
-    else if (data === 'admin_logs_users') filter = { action: { $regex: /^user_/ } }
-    else if (data === 'admin_logs_payments') filter = { action: { $regex: /^payment_/ } }
-    else if (data === 'admin_logs_errors') filter = { action: 'error' }
+    if (filterType === 'admin') filter = { action: { $regex: /^admin_/ } }
+    else if (filterType === 'users') filter = { action: { $regex: /^user_/ } }
+    else if (filterType === 'payments') filter = { action: { $regex: /^payment_/ } }
+    else if (filterType === 'errors') filter = { action: 'error' }
 
     const logs = await Log.find(filter).sort({ timestamp: -1 }).limit(20).lean()
 
     if (logs.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.info} Loglar mavjud emas.`)
+      await ctx.editMessageText(`${EMOJIS.info} Bu turdagi loglar mavjud emas.`)
       return
+    }
+
+    const filterLabels: Record<string, string> = {
+      admin: '🔧 Admin amallari',
+      users: '👤 Foydalanuvchi amallari',
+      payments: '💳 To\'lov amallari',
+      errors: '❌ Xatoliklar',
     }
 
     const lines = logs.map((l, i) =>
       `${i + 1}. [${new Date(l.timestamp).toLocaleString('uz-UZ')}] ${l.action} | ${l.adminName || l.adminId}`
     )
 
-    await ctx.editMessageText(`${EMOJIS.info} <b>Loglar (oxirgi 20):</b>\n\n${lines.join('\n')}`, {
+    await ctx.editMessageText(`${EMOJIS.info} <b>${filterLabels[filterType] || 'Loglar'} (oxirgi 20):</b>\n\n${lines.join('\n')}`, {
       parse_mode: 'HTML',
       reply_markup: { inline_keyboard: [[{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_logs' }]] },
     })
