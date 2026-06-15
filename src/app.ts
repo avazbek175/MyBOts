@@ -33,7 +33,14 @@ async function ensureDbConnection(): Promise<void> {
 }
 
 async function lazyInit(): Promise<void> {
-  if (appInitialized) return
+  if (appInitialized) {
+    if (mongoose.connection.readyState !== 1) {
+      try {
+        await mongoose.connect(config.mongodb.uri)
+      } catch {}
+    }
+    return
+  }
   try {
     await ensureDbConnection()
     getRedis()

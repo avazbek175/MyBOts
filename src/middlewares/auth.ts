@@ -10,9 +10,13 @@ export async function authMiddleware(ctx: BotContext, next: () => Promise<void>)
 
   try {
     if (mongoose.connection.readyState !== 1) {
-      await ctx.reply('🔄 Server ishga tushmoqda... Bir ozdan so\'ng /start ni bosing.')
-      shouldPass = false
-      return
+      try {
+        await mongoose.connect(config.mongodb.uri)
+      } catch {
+        await ctx.reply('🔄 Server ishga tushmoqda... Bir ozdan so\'ng /start ni bosing.')
+        shouldPass = false
+        return
+      }
     }
 
     let user = await User.findOne({ telegramId })
