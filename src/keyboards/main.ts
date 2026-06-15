@@ -5,11 +5,7 @@ export function mainMenuKeyboard() {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`${EMOJIS.movie} Kinolar`, 'movies')],
     [Markup.button.callback(`${EMOJIS.series} Seriallar`, 'series')],
-    [Markup.button.callback(`${EMOJIS.category} Kategoriyalar`, 'categories')],
-    [Markup.button.callback(`${EMOJIS.search} Qidirish`, 'search')],
     [Markup.button.callback(`${EMOJIS.fire} Top kinolar`, 'top_movies')],
-    [Markup.button.callback(`${EMOJIS.heart} Sevimlilar`, 'favorites')],
-    [Markup.button.callback(`${EMOJIS.history} Tarix`, 'history')],
     [Markup.button.callback(`${EMOJIS.user} Profil`, 'profile')],
   ])
 }
