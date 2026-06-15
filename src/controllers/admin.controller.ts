@@ -48,10 +48,24 @@ async function logAdminAction(ctx: BotContext, action: string, targetId?: string
 
 // ─── Dashboard ────────────────────────────────────────────
 
+async function adminReply(ctx: BotContext, text: string, keyboard: any) {
+  try {
+    if (ctx.callbackQuery) {
+      await ctx.editMessageText(text, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+    } else {
+      await ctx.reply(text, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+    }
+  } catch {
+    try {
+      await ctx.reply(text, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+    } catch {}
+  }
+}
+
 export async function handleAdminPanel(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const user = await UserService.getById(ctx.from?.id || 0)
+    const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
     const name = user?.firstName || ctx.from?.first_name || 'Admin'
 
     const text = [
@@ -61,13 +75,12 @@ export async function handleAdminPanel(ctx: BotContext) {
       `Kerakli bo'limni tanlang:`,
     ].join('')
 
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminDashboardKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminDashboardKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminPanel error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    try {
+      await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    } catch {}
   }
 }
 
