@@ -70,6 +70,30 @@ bot.use(async (ctx, next) => {
   return subscriptionMiddleware(ctx, next)
 })
 
+bot.command('ping', async (ctx) => {
+  await ctx.reply('🏓 *Pong!*\n\nBot ishlayapti ✅', { parse_mode: 'Markdown' })
+})
+
+bot.command('debug', async (ctx) => {
+  const owners = config.owner.ids
+  if (!owners.includes(ctx.from.id)) {
+    await ctx.reply('🚫 Bu buyruq faqat owner uchun.')
+    return
+  }
+  const { default: mongoose } = await import('mongoose')
+  const mongoState = ['disconnected', 'connected', 'connecting', 'disconnecting']
+  await ctx.reply([
+    '🔍 *BOT DEBUG*',
+    '',
+    `• Bot: ✅`,
+    `• MongoDB: ${mongoState[mongoose.connection.readyState] || '?'}`,
+    `• User: ${ctx.from.id}`,
+    `• Time: ${new Date().toISOString()}`,
+    `• Platform: Vercel`,
+    `• Telegraf: v4`,
+  ].join('\n'), { parse_mode: 'Markdown' })
+})
+
 bot.start(startCommand)
 bot.command('menu', handleMainMenu)
 bot.command('search', handleSearch)

@@ -6,10 +6,12 @@ import mongoose from 'mongoose'
 export async function authMiddleware(ctx: BotContext, next: () => Promise<void>) {
   if (!ctx.from) return await next()
   const telegramId = ctx.from.id
+  let shouldPass = true
 
   try {
     if (mongoose.connection.readyState !== 1) {
       await ctx.reply('🔄 Server ishga tushmoqda... Bir ozdan so\'ng /start ni bosing.')
+      shouldPass = false
       return
     }
 
@@ -25,6 +27,7 @@ export async function authMiddleware(ctx: BotContext, next: () => Promise<void>)
     }
     if (user.isBanned) {
       await ctx.reply('🚫 Siz botdan foydalanishdan bloklangansiz.')
+      shouldPass = false
       return
     }
     if (config.owner.ids.includes(telegramId) && user.role !== 'owner') {
@@ -35,13 +38,14 @@ export async function authMiddleware(ctx: BotContext, next: () => Promise<void>)
     ctx.session = ctx.session || {}
     ctx.session.user = user
   } catch (error: any) {
+    shouldPass = false
     const msg = (error?.message || '').toLowerCase()
-    if (msg.includes('connect') || msg.includes('timeout') || msg.includes('dns')) {
+    if (msg.includes('connect') || msg.includes('timeout') || msg.includes('dns') || msg.includes('mong')) {
       await ctx.reply('🚫 Ma\'lumotlar bazasiga ulanishda xatolik.\n\n💡 MongoDB Atlas → Network Access → 0.0.0.0/0 qo\'shing.')
       return
     }
     throw error
+  } finally {
+    if (shouldPass) await next()
   }
-
-  await next()
 }
