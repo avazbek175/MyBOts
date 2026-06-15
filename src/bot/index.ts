@@ -260,15 +260,15 @@ bot.on('text', async (ctx) => {
       session.data.step = 'waiting_movie_language'
       await ctx.reply('🗣 Tilni kiriting:')
     } else if (step === 'waiting_movie_language') {
-      session.data.language = ctx.message.text
+      session.data.lang = ctx.message.text
       session.data.step = 'waiting_movie_video'
       await ctx.reply('📹 Endi videoni yuboring (video fayl yoki file_id):')
     } else if (step === 'waiting_movie_video') {
       session.data.fileId = (ctx.message as any).video?.file_id || ctx.message.text
-      const { movieCode, movieName, description, genre, country, year, duration, rating, poster, language, fileId } = session.data
+      const { movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId } = session.data
       const { MovieService } = require('../services/movie.service')
       try {
-        await MovieService.create({ movieCode, movieName, description, genre, country, year, duration, rating, poster, language, fileId })
+        await MovieService.create({ movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId })
         await ctx.reply('✅ Kino muvaffaqiyatli qo\'shildi!')
         session.data = null
       } catch (err: any) {
@@ -301,10 +301,10 @@ bot.on('video', async (ctx) => {
   const session = (ctx as any).session
   if (session?.data?.step === 'waiting_movie_video') {
     session.data.fileId = ctx.message.video.file_id
-    const { movieCode, movieName, description, genre, country, year, duration, rating, poster, language, fileId } = session.data
+    const { movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId } = session.data
     const { MovieService } = require('../services/movie.service')
     try {
-      await MovieService.create({ movieCode, movieName, description, genre, country, year, duration, rating, poster, language, fileId })
+      await MovieService.create({ movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId })
       await ctx.reply('✅ Kino muvaffaqiyatli qo\'shildi!')
       session.data = null
     } catch (err: any) {

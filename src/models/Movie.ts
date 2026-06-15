@@ -14,7 +14,7 @@ const movieSchema = new Schema<IMovieDocument>(
     duration: { type: Number },
     rating: { type: Number },
     poster: { type: String },
-    language: { type: String },
+    lang: { type: String },
     fileId: { type: String, required: true },
     views: { type: Number, default: 0 },
     downloads: { type: Number, default: 0 },

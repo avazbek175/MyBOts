@@ -228,7 +228,7 @@ export async function handleAdminAddMovieProcess(ctx: BotContext) {
         break
       }
       case 'admin_add_movie_language': {
-        data.movieData.language = text
+        data.movieData.lang = text
         data.step = 'admin_add_movie_video'
         await ctx.reply(`${EMOJIS.views} 11-qadam (oxirgi): Kino video fayl ID sini yuboring.\n\nVideo faylni telegramga yuklab, file_id sini yuboring.`, { parse_mode: 'HTML' })
         break
@@ -486,7 +486,7 @@ export async function handleAdminAddSeriesProcess(ctx: BotContext) {
         break
       }
       case 'admin_add_series_language': {
-        data.seriesData.language = text
+        data.seriesData.lang = text
         data.seriesData.totalSeasons = 0
         await SeriesService.create(data.seriesData)
         await logAdminAction(ctx, 'series_add', data.seriesData.seriesCode, data.seriesData.seriesName)

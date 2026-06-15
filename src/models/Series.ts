@@ -13,7 +13,7 @@ const seriesSchema = new Schema<ISeriesDocument>(
     year: { type: Number },
     rating: { type: Number },
     poster: { type: String },
-    language: { type: String },
+    lang: { type: String },
     isActive: { type: Boolean, default: true },
     totalSeasons: { type: Number, default: 0 },
     categoryId: { type: String },

@@ -14,7 +14,7 @@ export function formatMovieInfo(movie: IMovie): string {
     movie.year ? `📆 Yil: ${movie.year}` : null,
     movie.duration ? `⏱ Davomiyligi: ${formatDuration(movie.duration)}` : null,
     movie.rating ? `⭐ Reyting: ${movie.rating}` : null,
-    movie.language ? `🗣 Til: ${movie.language}` : null,
+    movie.lang ? `🗣 Til: ${movie.lang}` : null,
     `👁 Ko'rishlar: ${formatNumber(movie.views)}`,
   ]
     .filter(Boolean)
@@ -30,7 +30,7 @@ export function formatSeriesInfo(series: ISeries): string {
     series.country ? `🌍 Davlat: ${series.country}` : null,
     series.year ? `📆 Yil: ${series.year}` : null,
     series.rating ? `⭐ Reyting: ${series.rating}` : null,
-    series.language ? `🗣 Til: ${series.language}` : null,
+    series.lang ? `🗣 Til: ${series.lang}` : null,
     `📦 Fasllar: ${series.totalSeasons}`,
   ]
     .filter(Boolean)

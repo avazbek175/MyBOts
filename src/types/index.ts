@@ -25,7 +25,7 @@ export interface IMovie {
   duration?: number
   rating?: number
   poster?: string
-  language?: string
+  lang?: string
   fileId: string
   views: number
   downloads: number
@@ -44,7 +44,7 @@ export interface ISeries {
   year?: number
   rating?: number
   poster?: string
-  language?: string
+  lang?: string
   isActive: boolean
   totalSeasons: number
   categoryId?: string
