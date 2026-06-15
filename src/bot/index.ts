@@ -47,7 +47,7 @@ import {
   handleAdminSeries, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
   handleAdminCategories, handleAdminAddCategory, handleAdminDeleteCategory,
   handleAdminChannels, handleAdminAddChannel, handleAdminDeleteChannel,
-  handleAdminUsers, handleAdminBanUser, handleAdminUnbanUser,
+  handleAdminUsers, handleAdminUsersList, handleAdminBanUser, handleAdminUnbanUser,
   handleAdminPremium, handleAdminGrantPremium, handleAdminPremiumPrices,
   handleAdminPayments, handleAdminRefund,
   handleAdminBroadcast, handleAdminSendBroadcast,
@@ -197,6 +197,7 @@ bot.action('admin_channels', handleAdminChannels)
 bot.action('admin_add_channel', handleAdminAddChannel)
 bot.action(/^admin_delete_channel:(.+)$/, handleAdminDeleteChannel)
 bot.action('admin_users', handleAdminUsers)
+bot.action('admin_users_list', handleAdminUsersList)
 bot.action(/^admin_ban:(.+)$/, handleAdminBanUser)
 bot.action(/^admin_unban:(.+)$/, handleAdminUnbanUser)
 bot.action('admin_premium', handleAdminPremium)

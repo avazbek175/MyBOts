@@ -996,6 +996,28 @@ export async function handleAdminUsers(ctx: BotContext) {
   }
 }
 
+export async function handleAdminUsersList(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const { users, total, totalPages } = await UserService.getAll(1, PAGINATION.pageSize)
+    if (users.length === 0) {
+      await ctx.editMessageText(`${EMOJIS.users} Foydalanuvchilar mavjud emas.`)
+      return
+    }
+
+    const lines = users.map((u, i) =>
+      `${i + 1}. ${u.firstName || 'Nomsiz'} | <code>${u.telegramId}</code>${u.isBanned ? ' 🔇' : ''}`
+    )
+    await ctx.editMessageText(`${EMOJIS.users} <b>Foydalanuvchilar (${total} ta)</b>\n\n${lines.join('\n')}`, {
+      parse_mode: 'HTML',
+      reply_markup: adminUsersListKeyboard(1, totalPages).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleAdminUsersList error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
 export async function handleAdminSearchUser(ctx: BotContext) {
   try {
     const text = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
@@ -1829,6 +1851,23 @@ export async function handleAdminPagination(ctx: BotContext) {
         parse_mode: 'HTML',
         reply_markup: adminMovieListKeyboard(page, totalPages).reply_markup,
       })
+    } else if (data.startsWith('admin_users_list_page_')) {
+      const page = parseInt(data.replace('admin_users_list_page_', ''), 10)
+      if (isNaN(page) || page < 1) return
+
+      const { users, total, totalPages } = await UserService.getAll(page, PAGINATION.pageSize)
+      if (users.length === 0) {
+        await ctx.editMessageText(`${EMOJIS.users} Bu sahifada foydalanuvchilar mavjud emas.`)
+        return
+      }
+
+      const lines = users.map((u, i) =>
+        `${i + 1 + (page - 1) * PAGINATION.pageSize}. ${u.firstName || 'Nomsiz'} | <code>${u.telegramId}</code>${u.isBanned ? ' 🔇' : ''}`
+      )
+      await ctx.editMessageText(`${EMOJIS.users} <b>Foydalanuvchilar (${total} ta)</b>\n\n${lines.join('\n')}`, {
+        parse_mode: 'HTML',
+        reply_markup: adminUsersListKeyboard(page, totalPages).reply_markup,
+      })
     }
   } catch (error) {
     logger.error(error, 'handleAdminPagination error')
@@ -1855,6 +1894,18 @@ function adminUsersKeyboard() {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`${EMOJIS.users} Foydalanuvchilar ro'yxati`, 'admin_users_list')],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_dashboard')],
+  ])
+}
+
+function adminUsersListKeyboard(page: number, totalPages: number) {
+  const { Markup } = require('telegraf')
+  const navButtons: ReturnType<typeof Markup.button.callback>[] = []
+  if (page > 1) navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `admin_users_list_page_${page - 1}`))
+  navButtons.push(Markup.button.callback(`${page}/${totalPages}`, 'page_info'))
+  if (page < totalPages) navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `admin_users_list_page_${page + 1}`))
+  return Markup.inlineKeyboard([
+    navButtons,
+    [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_users')],
   ])
 }
 
