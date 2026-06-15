@@ -47,7 +47,7 @@ import {
 } from '../controllers/premium.controller'
 import {
   handleAdminPanel, handleAdminDashboard,
-  handleAdminMovies, handleAdminAddMovie, handleAdminDeleteMovie, handleAdminEditMovie,
+  handleAdminMovies, handleAdminMovieList, handleAdminAddMovie, handleAdminDeleteMovie, handleAdminEditMovie,
   handleAdminSeries, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
   handleAdminCategories, handleAdminAddCategory, handleAdminDeleteCategory,
   handleAdminChannels, handleAdminAddChannel, handleAdminDeleteChannel,
@@ -216,6 +216,7 @@ bot.action('premium_extend', handlePremiumInfo)
 bot.action('admin_panel', handleAdminPanel)
 bot.action('admin_dashboard', handleAdminDashboard)
 bot.action('admin_movies', handleAdminMovies)
+bot.action('admin_movie_list', handleAdminMovieList)
 bot.action('admin_add_movie', handleAdminAddMovie)
 bot.action(/^admin_add_movie_code_select:(.+)$/, handleAdminAddMovieCodeSelect)
 bot.action('admin_delete_movie', handleAdminDeleteMovie)

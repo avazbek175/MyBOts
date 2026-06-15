@@ -37,7 +37,7 @@ export function adminDashboardKeyboard() {
 export function adminMoviesKeyboard() {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`🎬 Kino qo'shish`, 'admin_add_movie')],
-    [Markup.button.callback(`📋 Kinolar ro'yxati`, 'admin_movies')],
+    [Markup.button.callback(`📋 Kinolar ro'yxati`, 'admin_movie_list')],
     [Markup.button.callback(`✏️ Kinoni tahrirlash`, 'admin_edit_movie')],
     [Markup.button.callback(`🗑 Kinoni o'chirish`, 'admin_delete_movie')],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_dashboard')],
