@@ -10,7 +10,6 @@ export function mainMenuKeyboard() {
     [Markup.button.callback(`${EMOJIS.fire} Top kinolar`, 'top_movies')],
     [Markup.button.callback(`${EMOJIS.heart} Sevimlilar`, 'favorites')],
     [Markup.button.callback(`${EMOJIS.history} Tarix`, 'history')],
-    [Markup.button.callback(`${EMOJIS.recommend} Tavsiyalar`, 'recommendations')],
     [Markup.button.callback(`${EMOJIS.user} Profil`, 'profile')],
   ])
 }

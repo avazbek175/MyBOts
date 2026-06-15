@@ -59,6 +59,7 @@ import {
 import {
   handleStats, handleDetailedStats,
   handleTopMovies, handleTopSeries, handleTrending,
+  handleRecommendations,
 } from '../controllers/stats.controller'
 
 const bot = new Telegraf(config.bot.token)
@@ -175,7 +176,7 @@ bot.action(/^premium_buy:(.+)$/, handlePremiumBuy)
 bot.action(/^premium_confirm:(.+)$/, handlePremiumConfirm)
 
 bot.action('top_movies', handleTrending)
-bot.action('recommendations', handleDetailedStats)
+bot.action('recommendations', handleRecommendations)
 
 bot.action('admin_panel', handleAdminPanel)
 bot.action('admin_dashboard', handleAdminDashboard)
