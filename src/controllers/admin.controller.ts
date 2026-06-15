@@ -63,25 +63,18 @@ async function adminReply(ctx: BotContext, text: string, keyboard: any) {
 }
 
 export async function handleAdminPanel(ctx: BotContext) {
-  try {
-    await ctx.answerCbQuery?.()
-    const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
-    const name = user?.firstName || ctx.from?.first_name || 'Admin'
+  await ctx.answerCbQuery?.()
+  const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
+  const name = user?.firstName || ctx.from?.first_name || 'Admin'
 
-    const text = [
-      `${EMOJIS.admin} <b>Admin panel</b>\n\n`,
-      `Xush kelibsiz, ${name}!\n`,
-      `Sizning rolingiz: <b>${user?.role || 'admin'}</b>\n\n`,
-      `Kerakli bo'limni tanlang:`,
-    ].join('')
+  const text = [
+    `${EMOJIS.admin} <b>Admin panel</b>\n\n`,
+    `Xush kelibsiz, ${name}!\n`,
+    `Sizning rolingiz: <b>${user?.role || 'admin'}</b>\n\n`,
+    `Kerakli bo'limni tanlang:`,
+  ].join('')
 
-    await adminReply(ctx, text, adminDashboardKeyboard())
-  } catch (error) {
-    logger.error(error, 'handleAdminPanel error')
-    try {
-      await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
-    } catch {}
-  }
+  await adminReply(ctx, text, adminDashboardKeyboard())
 }
 
 export async function handleAdminDashboard(ctx: BotContext) {
