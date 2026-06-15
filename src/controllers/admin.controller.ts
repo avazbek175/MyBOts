@@ -26,6 +26,7 @@ import {
 import { formatStats } from '../utils/formatters'
 import { EMOJIS, PAGINATION, PREMIUM_PLANS, ADMIN_PERMISSIONS } from '../config/constants'
 import { logger } from '../utils/logger'
+import { config } from '../config'
 import Admin from '../models/Admin'
 import Log from '../models/Log'
 import { formatNumber } from '../utils/helpers'
@@ -65,12 +66,18 @@ async function adminReply(ctx: BotContext, text: string, keyboard: any) {
 export async function handleAdminPanel(ctx: BotContext) {
   await ctx.answerCbQuery?.()
   const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
-  const name = user?.firstName || ctx.from?.first_name || 'Admin'
+  const name = user?.firstName || ctx.from?.first_name || 'Foydalanuvchi'
+  const role = user?.role || 'user'
+
+  if (!['owner', 'superadmin', 'admin', 'moderator', 'support'].includes(role)) {
+    await ctx.reply(`${EMOJIS.lock} Siz admin emassiz.\n\nSizning rolingiz: <b>${role}</b>\n\nAdmin bilan bog'laning: @${config.owner.usernames[0] || 'admin'}`, { parse_mode: 'HTML' })
+    return
+  }
 
   const text = [
     `${EMOJIS.admin} <b>Admin panel</b>\n\n`,
     `Xush kelibsiz, ${name}!\n`,
-    `Sizning rolingiz: <b>${user?.role || 'admin'}</b>\n\n`,
+    `Sizning rolingiz: <b>${role}</b>\n\n`,
     `Kerakli bo'limni tanlang:`,
   ].join('')
 

@@ -4,27 +4,37 @@ import mongoose from 'mongoose'
 import { config } from '../config'
 
 async function reportToOwner(error: any, ctx?: BotContext) {
-  const owners = config.owner.ids
-  const stack = error?.stack || error?.message || String(error)
+  const rawStack = error?.stack || error?.message || String(error)
+  const stack = rawStack.slice(0, 1500).replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&')
+  const userId = ctx?.from?.id
   const text = [
-    '🚨 *BOT XATOLIK*',
+    '🚨 BOT XATOLIK',
     '',
-    `\`\`\`${stack.slice(0, 1500)}\`\`\``,
+    'Error:',
+    stack,
     '',
-    `• User: ${ctx?.from?.id || '?'} (@${ctx?.from?.username || '?'})`,
-    `• Chat: ${ctx?.chat?.id || '?'}`,
-    `• Time: ${new Date().toISOString()}`,
+    `User: ${userId || '?'} (@${ctx?.from?.username || '?'})`,
+    `Time: ${new Date().toISOString()}`,
   ].join('\n')
 
-  for (const ownerId of owners) {
+  const targets: number[] = []
+  for (const id of config.owner.ids) {
+    if (id > 0) targets.push(id)
+  }
+  if (userId && userId > 0 && !targets.includes(userId)) {
+    targets.push(userId)
+  }
+  if (targets.length === 0) return
+
+  for (const id of targets) {
     try {
       if (ctx?.telegram) {
-        await ctx.telegram.sendMessage(ownerId, text, { parse_mode: 'Markdown' })
+        await ctx.telegram.sendMessage(id, text, { parse_mode: 'Markdown' })
       }
     } catch {
       try {
         const { default: bot } = await import('../bot')
-        await bot.telegram.sendMessage(ownerId, text, { parse_mode: 'Markdown' })
+        await bot.telegram.sendMessage(id, text, { parse_mode: 'Markdown' })
       } catch {}
     }
   }
