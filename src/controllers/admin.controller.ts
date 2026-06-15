@@ -126,9 +126,9 @@ export async function handleAdminAddMovie(ctx: BotContext) {
     }
     await ctx.editMessageText(
       `${EMOJIS.movie} <b>Yangi kino qo'shish</b>\n\n` +
-      `1-qadam: Kino kodini kiriting.\n\n` +
+      `1/3: Kino kodini kiriting.\n` +
       `Misol: <code>AVATAR01</code>\n\n` +
-      `${EMOJIS.cross} Bekor qilish uchun /cancel buyrug'ini bosing.`,
+      `${EMOJIS.cross} Bekor qilish uchun /cancel`,
       { parse_mode: 'HTML' }
     )
   } catch (error) {
@@ -161,76 +161,13 @@ export async function handleAdminAddMovieProcess(ctx: BotContext) {
         }
         data.movieData.movieCode = text.toUpperCase()
         data.step = 'admin_add_movie_name'
-        await ctx.reply(`${EMOJIS.movie} 2-qadam: Kino nomini kiriting.\n\nMisol: <b>Avatar 2</b>`, { parse_mode: 'HTML' })
+        await ctx.reply(`${EMOJIS.movie} 2/3: Kino nomini kiriting.\n\nMisol: <b>Avatar 2</b>`, { parse_mode: 'HTML' })
         break
       }
       case 'admin_add_movie_name': {
         data.movieData.movieName = text
-        data.step = 'admin_add_movie_description'
-        await ctx.reply(`${EMOJIS.pencil} 3-qadam: Kino tavsifini kiriting (yoki - o'tkazib yuborish uchun).`)
-        break
-      }
-      case 'admin_add_movie_description': {
-        if (text !== '-') data.movieData.description = text
-        data.step = 'admin_add_movie_genre'
-        await ctx.reply(`${EMOJIS.category} 4-qadam: Janr(lar)ni vergul bilan ajratib kiriting.\n\nMisol: <code>Action, Sci-Fi, Adventure</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_genre': {
-        data.movieData.genre = text.split(',').map((g: string) => g.trim()).filter(Boolean)
-        data.step = 'admin_add_movie_country'
-        await ctx.reply(`${EMOJIS.globe} 5-qadam: Kino davlatini kiriting.\n\nMisol: <code>USA</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_country': {
-        data.movieData.country = text
-        data.step = 'admin_add_movie_year'
-        await ctx.reply(`${EMOJIS.year} 6-qadam: Kino yilini kiriting.\n\nMisol: <code>2024</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_year': {
-        const year = parseInt(text, 10)
-        if (isNaN(year) || year < 1900 || year > 2100) {
-          await ctx.reply(`${EMOJIS.warning} To'g'ri yil kiriting (1900-2100).`)
-          return
-        }
-        data.movieData.year = year
-        data.step = 'admin_add_movie_duration'
-        await ctx.reply(`${EMOJIS.clock} 7-qadam: Kino davomiyligini (daqiqa) kiriting.\n\nMisol: <code>142</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_duration': {
-        const duration = parseInt(text, 10)
-        if (isNaN(duration) || duration < 1) {
-          await ctx.reply(`${EMOJIS.warning} To'g'ri davomiylik kiriting (daqiqalarda).`)
-          return
-        }
-        data.movieData.duration = duration
-        data.step = 'admin_add_movie_rating'
-        await ctx.reply(`${EMOJIS.rating} 8-qadam: Kino reytingini kiriting (1-10).\n\nMisol: <code>8.5</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_rating': {
-        const rating = parseFloat(text)
-        if (isNaN(rating) || rating < 0 || rating > 10) {
-          await ctx.reply(`${EMOJIS.warning} To'g'ri reyting kiriting (0-10).`)
-          return
-        }
-        data.movieData.rating = rating
-        data.step = 'admin_add_movie_poster'
-        await ctx.reply(`${EMOJIS.movie} 9-qadam: Kino poster URL manzilini kiriting (yoki - o'tkazib yuborish uchun).\n\nMisol: <code>https://example.com/poster.jpg</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_poster': {
-        if (text !== '-' && text.startsWith('http')) data.movieData.poster = text
-        data.step = 'admin_add_movie_language'
-        await ctx.reply(`${EMOJIS.language} 10-qadam: Kino tilini kiriting.\n\nMisol: <code>O'zbekcha</code> yoki <code>Inglizcha</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_movie_language': {
-        data.movieData.lang = text
         data.step = 'admin_add_movie_video'
-        await ctx.reply(`${EMOJIS.views} 11-qadam (oxirgi): Kino video fayl ID sini yuboring.\n\nVideo faylni telegramga yuklab, file_id sini yuboring.`, { parse_mode: 'HTML' })
+        await ctx.reply(`${EMOJIS.movie} 3/3 (oxirgi): Video faylni yuboring.`, { parse_mode: 'HTML' })
         break
       }
       default:
@@ -262,7 +199,13 @@ export async function handleAdminAddMovieVideo(ctx: BotContext) {
     await logAdminAction(ctx, 'movie_add', data.movieData.movieCode, data.movieData.movieName)
 
     ctx.session.data = undefined
-    await ctx.reply(`${EMOJIS.success} <b>Kino muvaffaqiyatli qo'shildi!</b>\n\nKod: <code>${data.movieData.movieCode}</code>\nNom: ${data.movieData.movieName}`, { parse_mode: 'HTML' })
+    await ctx.reply(
+      `${EMOJIS.success} <b>Kino muvaffaqiyatli qo'shildi!</b>\n\n` +
+      `Kod: <code>${data.movieData.movieCode}</code>\n` +
+      `Nom: ${data.movieData.movieName}\n\n` +
+      `${EMOJIS.admin} Admin panelga qaytish: /admin`,
+      { parse_mode: 'HTML' }
+    )
   } catch (error) {
     logger.error(error, 'handleAdminAddMovieVideo error')
     await ctx.reply(`${EMOJIS.error} Kinoni saqlashda xatolik.`)

@@ -3,9 +3,25 @@ import User from '../models/User'
 import { config } from '../config'
 import mongoose from 'mongoose'
 
+const LAST_ACTIVITY_THROTTLE = 5 * 60 * 1000
+
 export async function authMiddleware(ctx: BotContext, next: () => Promise<void>) {
   if (!ctx.from) return await next()
   const telegramId = ctx.from.id
+
+  if (ctx.session?.user?.telegramId === telegramId) {
+    const user = ctx.session.user
+    const now = Date.now()
+    if (user.isBanned) {
+      await ctx.reply('🚫 Siz botdan foydalanishdan bloklangansiz.')
+      return
+    }
+    if (user.lastActivity && now - new Date(user.lastActivity).getTime() > LAST_ACTIVITY_THROTTLE) {
+      User.updateOne({ telegramId }, { lastActivity: new Date() }).catch(() => {})
+    }
+    return await next()
+  }
+
   let shouldPass = true
 
   try {
@@ -37,7 +53,8 @@ export async function authMiddleware(ctx: BotContext, next: () => Promise<void>)
     if (config.owner.ids.includes(telegramId) && user.role !== 'owner') {
       user.role = 'owner'
     }
-    user.lastActivity = new Date()
+    const now = new Date()
+    user.lastActivity = now
     await user.save()
     ctx.session = ctx.session || {}
     ctx.session.user = user
