@@ -308,7 +308,8 @@ bot.on('video', async (ctx) => {
       await ctx.reply('✅ Kino muvaffaqiyatli qo\'shildi!')
       session.data = null
     } catch (err: any) {
-      await ctx.reply(`❌ Xatolik: ${err.message}`)
+      const detail = (err.stack || err.message || String(err)).slice(0, 300)
+      await ctx.reply(`❌ Xatolik: ${err.message}\n\n📋 ${detail}`)
     }
   }
 })
