@@ -4,7 +4,7 @@ import { EMOJIS } from '../config/constants'
 export function adminDashboardKeyboard() {
   return Markup.inlineKeyboard([
     [
-      Markup.button.callback(`📊 Dashboard`, 'admin_dashboard_stats'),
+      Markup.button.callback(`📊 Dashboard`, 'admin_dashboard'),
       Markup.button.callback(`🎬 Kinolar`, 'admin_movies'),
     ],
     [
