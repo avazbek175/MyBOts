@@ -63,6 +63,10 @@ import {
 const bot = new Telegraf(config.bot.token)
 
 bot.use(session())
+bot.use(async (ctx, next) => {
+  if (ctx.chat && ctx.chat.type !== 'private') return
+  return next()
+})
 bot.use(errorHandler)
 bot.use(authMiddleware)
 bot.use(rateLimitMiddleware)
