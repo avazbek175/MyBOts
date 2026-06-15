@@ -64,6 +64,7 @@ import {
   handleAdminDeleteMovieConfirm, handleAdminDeleteCategoryConfirm, handleAdminDeleteChannelConfirm,
   handleAdminGrantPremiumSelect, handleAdminPaymentsAll, handleAdminBroadcastConfirm,
   handleAdminTogglePermission, handleAdminSaveAdmin, handleAdminRemoveAdminConfirm,
+  handleAdminEditMovieSelect, handleAdminEditMovieField, handleAdminEditMovieProcess,
 } from '../controllers/admin.controller'
 import {
   handleStats, handleDetailedStats,
@@ -200,9 +201,11 @@ bot.action('admin_dashboard', handleAdminDashboard)
 bot.action('admin_movies', handleAdminMovies)
 bot.action('admin_add_movie', handleAdminAddMovie)
 bot.action(/^admin_add_movie_code_select:(.+)$/, handleAdminAddMovieCodeSelect)
-bot.action(/^admin_delete_movie:(.+)$/, handleAdminDeleteMovie)
+bot.action('admin_delete_movie', handleAdminDeleteMovie)
 bot.action(/^admin_movie_delete_confirm_(.+)$/, handleAdminDeleteMovieConfirm)
-bot.action(/^admin_edit_movie:(.+)$/, handleAdminEditMovie)
+bot.action('admin_edit_movie', handleAdminEditMovie)
+bot.action(/^admin_movie_edit_select:(.+)$/, handleAdminEditMovieSelect)
+bot.action(/^admin_edit_movie_field:(.+):(.+)$/, handleAdminEditMovieField)
 bot.action('admin_series', handleAdminSeries)
 bot.action('admin_add_series', handleAdminAddSeries)
 bot.action(/^admin_add_season:(.+)$/, handleAdminAddSeason)
@@ -294,6 +297,8 @@ bot.on('text', async (ctx) => {
       await handleAdminAddAdminProcess(ctx)
     } else if (step.startsWith('admin_add_channel')) {
       await handleAdminAddChannelProcess(ctx)
+    } else if (step.startsWith('admin_edit_movie_')) {
+      await handleAdminEditMovieProcess(ctx)
     } else if (step.startsWith('admin_')) {
       await ctx.reply('❌ Noma\'lum admin qadam.')
     }

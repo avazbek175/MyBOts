@@ -64,24 +64,29 @@ async function adminReply(ctx: BotContext, text: string, keyboard: any) {
 }
 
 export async function handleAdminPanel(ctx: BotContext) {
-  if (ctx.callbackQuery) await ctx.answerCbQuery()
-  const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
-  const name = user?.firstName || ctx.from?.first_name || 'Foydalanuvchi'
-  const role = user?.role || 'user'
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const user = ctx.session?.user || await UserService.getById(ctx.from?.id || 0)
+    const name = user?.firstName || ctx.from?.first_name || 'Foydalanuvchi'
+    const role = user?.role || 'user'
 
-  if (!['owner', 'superadmin', 'admin', 'moderator', 'support'].includes(role)) {
-    await ctx.reply(`${EMOJIS.lock} Siz admin emassiz.\n\nSizning rolingiz: <b>${role}</b>\n\nAdmin bilan bog'laning: @${config.owner.usernames[0] || 'admin'}`, { parse_mode: 'HTML' })
-    return
+    if (!['owner', 'superadmin', 'admin', 'moderator', 'support'].includes(role)) {
+      await ctx.reply(`${EMOJIS.lock} Siz admin emassiz.\n\nSizning rolingiz: <b>${role}</b>\n\nAdmin bilan bog'laning: @${config.owner.usernames[0] || 'admin'}`, { parse_mode: 'HTML' })
+      return
+    }
+
+    const text = [
+      `${EMOJIS.admin} <b>Admin panel</b>\n\n`,
+      `Xush kelibsiz, ${name}!\n`,
+      `Sizning rolingiz: <b>${role}</b>\n\n`,
+      `Kerakli bo'limni tanlang:`,
+    ].join('')
+
+    await adminReply(ctx, text, adminDashboardKeyboard())
+  } catch (error) {
+    logger.error(error, 'handleAdminPanel error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
   }
-
-  const text = [
-    `${EMOJIS.admin} <b>Admin panel</b>\n\n`,
-    `Xush kelibsiz, ${name}!\n`,
-    `Sizning rolingiz: <b>${role}</b>\n\n`,
-    `Kerakli bo'limni tanlang:`,
-  ].join('')
-
-  await adminReply(ctx, text, adminDashboardKeyboard())
 }
 
 export async function handleAdminDashboard(ctx: BotContext) {
@@ -316,7 +321,7 @@ export async function handleAdminEditMovie(ctx: BotContext) {
     }
 
     const buttons = movies.map((m) => [
-      { text: `${EMOJIS.pencil} ${m.movieName} (${m.movieCode})`, callback_data: `admin_movie_edit_select_${m.movieCode}` },
+      { text: `${EMOJIS.pencil} ${m.movieName} (${m.movieCode})`, callback_data: `admin_movie_edit_select:${m.movieCode}` },
     ])
 
     buttons.push([{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_movies' }])
@@ -327,6 +332,146 @@ export async function handleAdminEditMovie(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminEditMovie error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminEditMovieSelect(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const movieCode = match[1]!
+    const movie = await MovieService.getByCode(movieCode)
+    if (!movie) {
+      await ctx.editMessageText(`${EMOJIS.error} Kino topilmadi.`)
+      return
+    }
+
+    if (ctx.session) {
+      ctx.session.data = { step: 'admin_edit_movie_field', editMovieCode: movieCode }
+    }
+
+    const fields = [
+      `🎬 <b>${movie.movieName}</b> (<code>${movie.movieCode}</code>)`,
+      ``,
+      `${EMOJIS.pencil} Nomi: <i>${movie.movieName || '?'}</i>`,
+      `📅 Yil: <i>${movie.year || '?'}</i>`,
+      `🎭 Janr: <i>${movie.genre?.join(', ') || '?'}</i>`,
+      `📝 Tavsif: <i>${(movie.description || '').slice(0, 50) || '?'}</i>`,
+      `🎬 Video: <i>${movie.fileId ? 'Ha' : 'Yo\'q'}</i>`,
+    ].join('\n')
+
+    const { Markup } = require('telegraf')
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback(`🏷 Nomi`, `admin_edit_movie_field:${movieCode}:name`)],
+      [Markup.button.callback(`📅 Yil`, `admin_edit_movie_field:${movieCode}:year`)],
+      [Markup.button.callback(`🎭 Janr`, `admin_edit_movie_field:${movieCode}:genre`)],
+      [Markup.button.callback(`📝 Tavsif`, `admin_edit_movie_field:${movieCode}:description`)],
+      [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_edit_movie')],
+    ])
+
+    await ctx.editMessageText(fields, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+  } catch (error) {
+    logger.error(error, 'handleAdminEditMovieSelect error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminEditMovieField(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const movieCode = match[1]!
+    const field = match[2] as string
+
+    if (ctx.session) {
+      ctx.session.data = { step: `admin_edit_movie_${field}`, editMovieCode: movieCode }
+    }
+
+    const fieldNames: Record<string, string> = {
+      name: 'yangi nomini',
+      year: 'yangi yilini',
+      genre: 'yangi janr(lar)ini (vergul bilan ajrating)',
+      description: 'yangi tavsifini',
+    }
+
+    await ctx.editMessageText(
+      `${EMOJIS.pencil} <b>Kinoni tahrirlash</b>\n\nKod: <code>${movieCode}</code>\n\n${fieldNames[field] || 'yangi qiymatini'} kiriting:\n\n${EMOJIS.cross} Bekor qilish uchun /cancel`,
+      { parse_mode: 'HTML' }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminEditMovieField error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminEditMovieProcess(ctx: BotContext) {
+  try {
+    const step = ctx.session?.data?.step || ''
+    const movieCode = ctx.session?.data?.editMovieCode
+    if (!movieCode) {
+      await ctx.reply(`${EMOJIS.error} Xatolik: kino kodi topilmadi.`)
+      return
+    }
+
+    let field: string | null = null
+    if (step === 'admin_edit_movie_name') field = 'name'
+    else if (step === 'admin_edit_movie_year') field = 'year'
+    else if (step === 'admin_edit_movie_genre') field = 'genre'
+    else if (step === 'admin_edit_movie_description') field = 'description'
+
+    if (!field) {
+      await ctx.reply(`${EMOJIS.error} Noma'lum qadam.`)
+      return
+    }
+
+    const value = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
+    if (!value) {
+      await ctx.reply(`${EMOJIS.error} Qiymat kiritilmadi. Qayta urinib ko'ring yoki /cancel`)
+      return
+    }
+
+    const updateData: any = {}
+    if (field === 'name') updateData.movieName = value
+    else if (field === 'year') updateData.year = parseInt(value) || undefined
+    else if (field === 'genre') updateData.genre = value.split(',').map((g) => g.trim()).filter(Boolean)
+    else if (field === 'description') updateData.description = value
+
+    await MovieService.update(movieCode, updateData)
+    await logAdminAction(ctx, `movie_edit_${field}`, movieCode, value)
+
+    ctx.session!.data.step = null
+    ctx.session!.data.editMovieCode = null
+
+    const movie = await MovieService.getByCode(movieCode)
+    if (!movie) {
+      await ctx.reply(`${EMOJIS.success} Kino tahrirlandi!`)
+      return
+    }
+
+    const fields = [
+      `✅ <b>${field} tahrirlandi!</b>`,
+      ``,
+      `🎬 <b>${movie.movieName}</b> (<code>${movie.movieCode}</code>)`,
+      ``,
+      `${EMOJIS.pencil} Nomi: <i>${movie.movieName || '?'}</i>`,
+      `📅 Yil: <i>${movie.year || '?'}</i>`,
+      `🎭 Janr: <i>${movie.genre?.join(', ') || '?'}</i>`,
+      `📝 Tavsif: <i>${(movie.description || '').slice(0, 50) || '?'}</i>`,
+    ].join('\n')
+
+    const { Markup } = require('telegraf')
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback(`🏷 Nomi`, `admin_edit_movie_field:${movieCode}:name`)],
+      [Markup.button.callback(`📅 Yil`, `admin_edit_movie_field:${movieCode}:year`)],
+      [Markup.button.callback(`🎭 Janr`, `admin_edit_movie_field:${movieCode}:genre`)],
+      [Markup.button.callback(`📝 Tavsif`, `admin_edit_movie_field:${movieCode}:description`)],
+      [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_edit_movie')],
+    ])
+
+    await ctx.reply(fields, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+  } catch (error) {
+    logger.error(error, 'handleAdminEditMovieProcess error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
   }
 }
