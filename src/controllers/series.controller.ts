@@ -184,6 +184,7 @@ export async function handleEpisodePlay(ctx: BotContext) {
       caption: `${EMOJIS.episode} <b>${episodeTitle}</b>\n\n${EMOJIS.views} Tomosha qiling, yoqimli tomosha!`,
       parse_mode: 'HTML',
       supports_streaming: true,
+      protect_content: true,
     })
   } catch (error) {
     logger.error(error, 'handleEpisodePlay error')

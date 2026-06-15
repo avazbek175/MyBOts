@@ -4,14 +4,8 @@ import { EMOJIS } from '../config/constants'
 
 export function movieDetailKeyboard(movieCode: string) {
   return Markup.inlineKeyboard([
-    [
-      Markup.button.callback(`${EMOJIS.views} Ko'rish`, `movie_play:${movieCode}`),
-      Markup.button.callback(`${EMOJIS.download} Yuklab olish`, `movie_download:${movieCode}`),
-    ],
-    [
-      Markup.button.callback(`${EMOJIS.heart} Saqlash`, `movie_save:${movieCode}`),
-      Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back'),
-    ],
+    [Markup.button.callback(`${EMOJIS.views} Ko'rish`, `movie_play:${movieCode}`)],
+    [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back')],
   ])
 }
 

@@ -172,6 +172,7 @@ export async function handleMoviePlay(ctx: BotContext) {
       caption: `${EMOJIS.movie} <b>${movie.movieName}</b>\n\n${EMOJIS.views} Tomosha qiling, yoqimli tomosha!`,
       parse_mode: 'HTML',
       supports_streaming: true,
+      protect_content: true,
     })
   } catch (error) {
     logger.error(error, 'handleMoviePlay error')
