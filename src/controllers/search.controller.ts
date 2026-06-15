@@ -1,10 +1,8 @@
 import { BotContext } from '../types'
 import { MovieService } from '../services/movie.service'
-import { SeriesService } from '../services/series.service'
 import { CategoryService } from '../services/category.service'
 import { categorySelectionKeyboard } from '../keyboards/category'
 import { movieListKeyboard } from '../keyboards/movie'
-import { formatMovieInfo, formatSeriesInfo } from '../utils/formatters'
 import { EMOJIS, PAGINATION } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -26,35 +24,11 @@ export async function handleSearch(ctx: BotContext) {
 
 export async function handleSearchByCode(ctx: BotContext) {
   try {
-    const code = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim().toUpperCase() : ''
-    if (!code) {
-      await ctx.reply(`${EMOJIS.warning} Kino kodini kiriting.`)
-      return
+    await ctx.answerCbQuery?.()
+    if (ctx.session) {
+      ctx.session.data = { searchMode: 'code' }
     }
-
-    const movie = await MovieService.getByCode(code)
-    if (movie) {
-      const text = formatMovieInfo(movie)
-      const caption = `${EMOJIS.movie} <b>${movie.movieName}</b>\n\n${text}`
-      await ctx.reply(caption, {
-        parse_mode: 'HTML',
-        reply_markup: (await import('../keyboards/movie')).movieDetailKeyboard(movie.movieCode).reply_markup,
-      })
-      return
-    }
-
-    const series = await SeriesService.getByCode(code)
-    if (series) {
-      const text = formatSeriesInfo(series)
-      const caption = `${EMOJIS.series} <b>${series.seriesName}</b>\n\n${text}`
-      await ctx.reply(caption, {
-        parse_mode: 'HTML',
-        reply_markup: (await import('../keyboards/series')).seriesDetailKeyboard(series.seriesCode).reply_markup,
-      })
-      return
-    }
-
-    await ctx.reply(`${EMOJIS.error} Hech narsa topilmadi. Kodni tekshirib qayta urinib ko'ring.`)
+    await ctx.reply(`${EMOJIS.search} Kino yoki serial kodini kiriting:\n\nMisol: <code>AVATAR</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleSearchByCode error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
@@ -63,32 +37,11 @@ export async function handleSearchByCode(ctx: BotContext) {
 
 export async function handleSearchByName(ctx: BotContext) {
   try {
-    const query = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
-    if (!query) {
-      await ctx.reply(`${EMOJIS.warning} Qidiruv matnini kiriting.`)
-      return
+    await ctx.answerCbQuery?.()
+    if (ctx.session) {
+      ctx.session.data = { searchMode: 'name' }
     }
-
-    const movies = await MovieService.fuzzySearch(query)
-    const series = await SeriesService.fuzzySearch(query)
-    const results = [...movies, ...series]
-
-    if (results.length === 0) {
-      await ctx.reply(`${EMOJIS.error} "${query}" bo'yicha hech narsa topilmadi.`)
-      return
-    }
-
-    const text = [
-      `${EMOJIS.search} <b>"${query}" bo'yicha natijalar (${results.length}):</b>\n`,
-      ...results.slice(0, 10).map((r: any, i: number) =>
-        `${i + 1}. ${r.movieName || r.seriesName} | ${r.movieCode || r.seriesCode}`
-      ),
-    ].join('\n')
-
-    await ctx.reply(text, {
-      parse_mode: 'HTML',
-      reply_markup: (await import('../keyboards/main')).backButton().reply_markup,
-    })
+    await ctx.reply(`${EMOJIS.search} Kino yoki serial nomini kiriting:`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleSearchByName error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
@@ -103,7 +56,7 @@ export async function handleSearchByGenre(ctx: BotContext) {
       ctx.session.data = { step: 'search_genre_selection' }
     }
     await ctx.editMessageText(`${EMOJIS.category} Janrni tanlang:`, {
-      reply_markup: categorySelectionKeyboard(categories, 'search_genre_').reply_markup,
+      reply_markup: categorySelectionKeyboard(categories, 'search_genre:').reply_markup,
     })
   } catch (error) {
     logger.error(error, 'handleSearchByGenre error')
@@ -113,27 +66,11 @@ export async function handleSearchByGenre(ctx: BotContext) {
 
 export async function handleSearchByYear(ctx: BotContext) {
   try {
-    const yearText = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
-    const year = parseInt(yearText, 10)
-    if (isNaN(year) || year < 1900 || year > 2100) {
-      await ctx.reply(`${EMOJIS.warning} To'g'ri yil kiriting.\n\nMisol: <code>2024</code>`, {
-        parse_mode: 'HTML',
-      })
-      return
+    await ctx.answerCbQuery?.()
+    if (ctx.session) {
+      ctx.session.data = { searchMode: 'year' }
     }
-
-    const { movies, total } = await MovieService.getAll(1, PAGINATION.pageSize, { year })
-
-    if (movies.length === 0) {
-      await ctx.reply(`${EMOJIS.error} ${year}-yilda kinolar topilmadi.`)
-      return
-    }
-
-    const text = `${EMOJIS.year} <b>${year}-yil kinolari (${total} ta):</b>\n\n`
-    await ctx.reply(text, {
-      parse_mode: 'HTML',
-      reply_markup: movieListKeyboard(movies, 1, Math.ceil(total / PAGINATION.pageSize)).reply_markup,
-    })
+    await ctx.reply(`${EMOJIS.search} Yilni kiriting:\n\nMisol: <code>2024</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleSearchByYear error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
@@ -143,8 +80,8 @@ export async function handleSearchByYear(ctx: BotContext) {
 export async function handleSearchByGenreSelect(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const genreSlug = data.replace('search_genre_', '')
+    const match = ctx.match as RegExpExecArray
+    const genreSlug = match?.[1] || ''
     const category = await CategoryService.getBySlug(genreSlug)
     const genreName = category?.name || genreSlug
 

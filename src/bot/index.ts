@@ -54,11 +54,14 @@ import {
   handleAdminStats,
   handleAdminModerators, handleAdminAddAdmin, handleAdminRemoveAdmin, handleAdminPermissions,
   handleAdminSettings, handleAdminLogs, handleAdminPagination,
-  handleAdminAddChannelProcess,
+  handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo,
+  handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
+  handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
+  handleAdminRefundProcess, handleAdminSendBroadcastProcess, handleAdminAddAdminProcess,
 } from '../controllers/admin.controller'
 import {
   handleStats, handleDetailedStats,
-  handleTopMovies, handleTopSeries, handleTrending,
+  handleTopMovies, handleTopSeries,
   handleRecommendations,
 } from '../controllers/stats.controller'
 
@@ -149,7 +152,7 @@ bot.action(/^episode_page:(.+)$/, handleEpisodePagination)
 
 bot.action('categories', handleCategoryList)
 bot.action(/^category:(.+)$/, handleCategorySelect)
-bot.action(/^cat_page:(\d+)$/, handleCategoryPagination)
+bot.action(/^category_page:(\w+):(\d+)$/, handleCategoryPagination)
 
 bot.action('search', handleSearch)
 bot.action('search_code', handleSearchByCode)
@@ -175,7 +178,6 @@ bot.action('premium_status', handlePremiumStatus)
 bot.action(/^premium_buy:(.+)$/, handlePremiumBuy)
 bot.action(/^premium_confirm:(.+)$/, handlePremiumConfirm)
 
-bot.action('top_movies', handleTrending)
 bot.action('recommendations', handleRecommendations)
 
 bot.action('admin_panel', handleAdminPanel)
@@ -213,6 +215,17 @@ bot.action('admin_settings', handleAdminSettings)
 bot.action('admin_logs', handleAdminLogs)
 bot.action(/^admin_page:([a-z_]+):(\d+)$/, handleAdminPagination)
 
+bot.on('video', async (ctx) => {
+  if ((ctx as any).session?.data?.step === 'admin_add_movie_video') {
+    await handleAdminAddMovieVideo(ctx)
+  }
+})
+bot.on('document', async (ctx) => {
+  if ((ctx as any).session?.data?.step === 'admin_add_movie_video') {
+    await handleAdminAddMovieVideo(ctx)
+  }
+})
+
 bot.action('stats', handleStats)
 bot.action('detailed_stats', handleDetailedStats)
 bot.action('top_movies', handleTopMovies)
@@ -232,59 +245,30 @@ bot.on('text', async (ctx) => {
   const session = (ctx as any).session
   if (session?.data?.step) {
     const step = session.data.step
-    if (step === 'waiting_movie_code') {
-      session.data.movieCode = ctx.message.text
-      session.data.step = 'waiting_movie_name'
-      await ctx.reply('🎬 Kino nomini kiriting:')
-    } else if (step === 'waiting_movie_name') {
-      session.data.movieName = ctx.message.text
-      session.data.step = 'waiting_movie_description'
-      await ctx.reply('📝 Kino tavsifini kiriting:')
-    } else if (step === 'waiting_movie_description') {
-      session.data.description = ctx.message.text
-      session.data.step = 'waiting_movie_genre'
-      await ctx.reply('🎭 Janr(lar)ni vergul bilan ajratib kiriting (masalan: Action, Drama):')
-    } else if (step === 'waiting_movie_genre') {
-      session.data.genre = ctx.message.text.split(',').map((g: string) => g.trim())
-      session.data.step = 'waiting_movie_country'
-      await ctx.reply('🌍 Davlatni kiriting:')
-    } else if (step === 'waiting_movie_country') {
-      session.data.country = ctx.message.text
-      session.data.step = 'waiting_movie_year'
-      await ctx.reply('📆 Yilni kiriting (masalan: 2024):')
-    } else if (step === 'waiting_movie_year') {
-      session.data.year = parseInt(ctx.message.text)
-      session.data.step = 'waiting_movie_duration'
-      await ctx.reply('⏱ Davomiyligini kiriting (daqiqalarda):')
-    } else if (step === 'waiting_movie_duration') {
-      session.data.duration = parseInt(ctx.message.text)
-      session.data.step = 'waiting_movie_rating'
-      await ctx.reply('⭐ Reytingni kiriting (0-10):')
-    } else if (step === 'waiting_movie_rating') {
-      session.data.rating = parseFloat(ctx.message.text)
-      session.data.step = 'waiting_movie_poster'
-      await ctx.reply('🖼 Poster URL manzilini kiriting (yoki "skip" yozing):')
-    } else if (step === 'waiting_movie_poster') {
-      session.data.poster = ctx.message.text === 'skip' ? '' : ctx.message.text
-      session.data.step = 'waiting_movie_language'
-      await ctx.reply('🗣 Tilni kiriting:')
-    } else if (step === 'waiting_movie_language') {
-      session.data.lang = ctx.message.text
-      session.data.step = 'waiting_movie_video'
-      await ctx.reply('📹 Endi videoni yuboring (video fayl yoki file_id):')
-    } else if (step === 'waiting_movie_video') {
-      session.data.fileId = (ctx.message as any).video?.file_id || ctx.message.text
-      const { movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId } = session.data
-      const { MovieService } = require('../services/movie.service')
-      try {
-        await MovieService.create({ movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId })
-        await ctx.reply('✅ Kino muvaffaqiyatli qo\'shildi!')
-        session.data = null
-      } catch (err: any) {
-        await ctx.reply(`❌ Xatolik: ${err.message}`)
-      }
+    if (step.startsWith('admin_add_movie')) {
+      await handleAdminAddMovieProcess(ctx)
+    } else if (step.startsWith('admin_add_series')) {
+      await handleAdminAddSeriesProcess(ctx)
+    } else if (step.startsWith('admin_add_season')) {
+      await handleAdminAddSeasonProcess(ctx)
+    } else if (step.startsWith('admin_add_episode')) {
+      await handleAdminAddEpisodeProcess(ctx)
+    } else if (step.startsWith('admin_add_category')) {
+      await handleAdminAddCategoryProcess(ctx)
+    } else if (step.startsWith('admin_ban')) {
+      await handleAdminBanUserProcess(ctx)
+    } else if (step.startsWith('admin_grant')) {
+      await handleAdminGrantPremiumProcess(ctx)
+    } else if (step.startsWith('admin_refund')) {
+      await handleAdminRefundProcess(ctx)
+    } else if (step.startsWith('admin_broadcast')) {
+      await handleAdminSendBroadcastProcess(ctx)
+    } else if (step.startsWith('admin_add_admin')) {
+      await handleAdminAddAdminProcess(ctx)
     } else if (step.startsWith('admin_add_channel')) {
       await handleAdminAddChannelProcess(ctx)
+    } else if (step.startsWith('admin_')) {
+      await ctx.reply('❌ Noma\'lum admin qadam.')
     }
     return
   }
@@ -315,23 +299,6 @@ bot.on('text', async (ctx) => {
   }
 
   await handleSearchResults(ctx, ctx.message.text, 1)
-})
-
-bot.on('video', async (ctx) => {
-  const session = (ctx as any).session
-  if (session?.data?.step === 'waiting_movie_video') {
-    session.data.fileId = ctx.message.video.file_id
-    const { movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId } = session.data
-    const { MovieService } = require('../services/movie.service')
-    try {
-      await MovieService.create({ movieCode, movieName, description, genre, country, year, duration, rating, poster, lang, fileId })
-      await ctx.reply('✅ Kino muvaffaqiyatli qo\'shildi!')
-      session.data = null
-    } catch (err: any) {
-      const detail = (err.stack || err.message || String(err)).slice(0, 300)
-      await ctx.reply(`❌ Xatolik: ${err.message}\n\n📋 ${detail}`)
-    }
-  }
 })
 
 export default bot

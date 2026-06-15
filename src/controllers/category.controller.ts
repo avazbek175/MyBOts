@@ -22,7 +22,7 @@ export async function handleCategoryList(ctx: BotContext) {
     const text = `${EMOJIS.category} <b>Kategoriyalar</b>\n\nKerakli kategoriyani tanlang:`
     await ctx.editMessageText(text, {
       parse_mode: 'HTML',
-      reply_markup: categorySelectionKeyboard(categories, 'category_select_').reply_markup,
+      reply_markup: categorySelectionKeyboard(categories, 'category:').reply_markup,
     })
   } catch (error) {
     logger.error(error, 'handleCategoryList error')
@@ -33,8 +33,8 @@ export async function handleCategoryList(ctx: BotContext) {
 export async function handleCategorySelect(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const categorySlug = data.replace('category_select_', '')
+    const match = ctx.match as RegExpExecArray
+    const categorySlug = match?.[1] || ''
     const category = await CategoryService.getBySlug(categorySlug)
 
     if (!category) {
@@ -76,10 +76,9 @@ export async function handleCategorySelect(ctx: BotContext) {
 export async function handleCategoryPagination(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const parts = data.replace('category_page_', '').split('_')
-    const categorySlug = parts[0]
-    const page = parseInt(parts[1], 10)
+    const match = ctx.match as RegExpExecArray
+    const categorySlug = match?.[1] || ''
+    const page = parseInt(match?.[2] || '1', 10)
     if (isNaN(page) || page < 1) return
 
     const category = await CategoryService.getBySlug(categorySlug)

@@ -125,7 +125,7 @@ export async function handleMovieSearchByGenre(ctx: BotContext) {
     await ctx.answerCbQuery?.()
     const categories = await CategoryService.getAll()
     await ctx.editMessageText(`${EMOJIS.category} Janrni tanlang:`, {
-      reply_markup: categorySelectionKeyboard(categories, 'movie_search_genre_').reply_markup,
+      reply_markup: categorySelectionKeyboard(categories, 'movie_search_genre:').reply_markup,
     })
   } catch (error) {
     logger.error(error, 'handleMovieSearchByGenre error')

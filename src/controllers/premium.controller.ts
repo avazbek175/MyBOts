@@ -36,8 +36,8 @@ export async function handlePremiumInfo(ctx: BotContext) {
 export async function handlePremiumBuy(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const planKey = data.replace('premium_select_', '')
+    const match = ctx.match as RegExpExecArray
+    const planKey = match?.[1] || ''
     const plan = PLANS.find((p) => p.key === planKey)
 
     if (!plan) {
@@ -65,8 +65,8 @@ export async function handlePremiumBuy(ctx: BotContext) {
 export async function handlePremiumConfirm(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-    const planKey = data.replace('premium_confirm_', '')
+    const match = ctx.match as RegExpExecArray
+    const planKey = match?.[1] || ''
     const plan = PLANS.find((p) => p.key === planKey)
 
     if (!plan) {
@@ -171,9 +171,9 @@ export async function handleSuccessfulPayment(ctx: BotContext) {
       return
     }
 
-    const { userId, plan } = parsed
+    const { paymentId, userId, plan } = parsed
 
-    await PaymentService.completePayment((payment as any).invoice_id || (payment as any).telegram_payment_charge_id)
+    await PaymentService.completePayment(paymentId)
     await UserService.updatePremium(userId, plan)
 
     await ctx.reply(

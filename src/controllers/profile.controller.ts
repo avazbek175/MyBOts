@@ -166,7 +166,7 @@ function profileKeyboard() {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`${EMOJIS.heart} Sevimlilar`, 'favorites')],
     [Markup.button.callback(`${EMOJIS.history} Tomosha tarixi`, 'history')],
-    [Markup.button.callback(`${EMOJIS.premium} Premium`, 'premium_info')],
+    [Markup.button.callback(`${EMOJIS.premium} Premium`, 'premium')],
     [Markup.button.callback('🏠 Bosh menyu', 'main_menu')],
   ])
 }
@@ -202,7 +202,7 @@ function historyListKeyboard(page: number, totalPages: number) {
 
   return Markup.inlineKeyboard([
     navButtons,
-    [Markup.button.callback(`${EMOJIS.trash} Tarixni tozalash`, 'history_clear')],
+    [Markup.button.callback(`${EMOJIS.trash} Tarixni tozalash`, 'clear_history')],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back')],
   ])
 }

@@ -16,29 +16,29 @@ export class PaymentService {
     return payment.toObject()
   }
 
-  static async completePayment(invoiceId: string): Promise<IPayment | null> {
+  static async completePayment(paymentId: string): Promise<IPayment | null> {
     const payment = await Payment.findOneAndUpdate(
-      { invoiceId },
+      { _id: paymentId },
       { status: 'completed' },
       { new: true }
     )
     if (!payment) return null
 
     await SubscriptionService.createPremium(payment.userId, payment.type)
-    logger.info(`Payment completed: ${invoiceId} for user ${payment.userId}`)
+    logger.info(`Payment completed: ${paymentId} for user ${payment.userId}`)
     return payment.toObject()
   }
 
-  static async refundPayment(invoiceId: string): Promise<IPayment | null> {
+  static async refundPayment(paymentId: string): Promise<IPayment | null> {
     const payment = await Payment.findOneAndUpdate(
-      { invoiceId },
+      { _id: paymentId },
       { status: 'refunded', refundedAt: new Date() },
       { new: true }
     )
     if (!payment) return null
 
     await SubscriptionService.cancelSubscription(payment.userId)
-    logger.info(`Payment refunded: ${invoiceId} for user ${payment.userId}`)
+    logger.info(`Payment refunded: ${paymentId} for user ${payment.userId}`)
     return payment.toObject()
   }
 
