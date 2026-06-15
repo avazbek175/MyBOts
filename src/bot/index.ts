@@ -54,6 +54,7 @@ import {
   handleAdminStats,
   handleAdminModerators, handleAdminAddAdmin, handleAdminRemoveAdmin, handleAdminPermissions,
   handleAdminSettings, handleAdminLogs, handleAdminPagination,
+  handleAdminAddChannelProcess,
 } from '../controllers/admin.controller'
 import {
   handleStats, handleDetailedStats,
@@ -281,6 +282,8 @@ bot.on('text', async (ctx) => {
       } catch (err: any) {
         await ctx.reply(`❌ Xatolik: ${err.message}`)
       }
+    } else if (step.startsWith('admin_add_channel')) {
+      await handleAdminAddChannelProcess(ctx)
     }
     return
   }

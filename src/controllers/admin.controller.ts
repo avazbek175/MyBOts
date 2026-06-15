@@ -850,14 +850,14 @@ export async function handleAdminAddChannel(ctx: BotContext) {
     await ctx.answerCbQuery?.()
     if (ctx.session) {
       ctx.session.data = {
-        step: 'admin_add_channel_id',
+        step: 'admin_add_channel_username',
         channelData: {},
       }
     }
     await ctx.editMessageText(
       `${EMOJIS.channel} <b>Kanal qo'shish</b>\n\n` +
-      `1-qadam: Kanal ID sini kiriting:\n\n` +
-      `Misol: <code>-1001234567890</code>`,
+      `Kanal username'ini kiriting (@ bilan yoki @siz):\n\n` +
+      `Misol: <code>@kinokanali</code> yoki <code>kinokanali</code>`,
       { parse_mode: 'HTML' }
     )
   } catch (error) {
@@ -882,25 +882,34 @@ export async function handleAdminAddChannelProcess(ctx: BotContext) {
     const data = ctx.session.data!
 
     switch (step) {
-      case 'admin_add_channel_id': {
-        data.channelData.channelId = text
-        data.step = 'admin_add_channel_name'
-        await ctx.reply(`${EMOJIS.pencil} 2-qadam: Kanal nomini kiriting:\n\nMisol: <code>Kino Kanali</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_channel_name': {
-        data.channelData.channelName = text
-        data.step = 'admin_add_channel_url'
-        await ctx.reply(`${EMOJIS.globe} 3-qadam: Kanal URL manzilini kiriting:\n\nMisol: <code>https://t.me/kinokanali</code>`, { parse_mode: 'HTML' })
-        break
-      }
-      case 'admin_add_channel_url': {
-        data.channelData.channelUrl = text.startsWith('http') ? text : `https://t.me/${text}`
-        await ChannelService.create(data.channelData)
-        await logAdminAction(ctx, 'channel_add', data.channelData.channelId, data.channelData.channelName)
+      case 'admin_add_channel_username': {
+        const username = text.replace('@', '').trim()
+        try {
+          const chat = await ctx.telegram.getChat(`@${username}`)
+          if (chat.type !== 'channel') {
+            await ctx.reply(`${EMOJIS.warning} Bu kanal emas. Kanal username'ini kiriting.`)
+            return
+          }
+          data.channelData.channelId = chat.id.toString()
+          data.channelData.channelName = chat.title
+          data.channelData.channelUrl = chat.invite_link || `https://t.me/${username}`
 
-        ctx.session.data = undefined
-        await ctx.reply(`${EMOJIS.success} <b>Kanal qo'shildi:</b> ${data.channelData.channelName}`, { parse_mode: 'HTML' })
+          await ChannelService.create(data.channelData)
+          await logAdminAction(ctx, 'channel_add', data.channelData.channelId, data.channelData.channelName)
+
+          ctx.session.data = undefined
+          await ctx.reply(
+            `${EMOJIS.success} <b>Kanal qo'shildi:</b> ${data.channelData.channelName}\n\n` +
+            `🆔 ID: <code>${data.channelData.channelId}</code>`,
+            { parse_mode: 'HTML' }
+          )
+        } catch (err: any) {
+          if (err?.description?.includes('chat not found')) {
+            await ctx.reply(`${EMOJIS.error} Kanal topilmadi. Username'ni tekshirib qayta kiriting.`)
+          } else {
+            throw err
+          }
+        }
         break
       }
       default:
