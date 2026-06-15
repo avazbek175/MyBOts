@@ -236,6 +236,51 @@ export async function handleSeriesSearchByName(ctx: BotContext) {
   }
 }
 
+export async function handleSeriesSearchByGenreSelect(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const genreSlug = match?.[1] || ''
+    const { seriesList, total } = await SeriesService.getAll(1, PAGINATION.pageSize, { genre: genreSlug })
+    if (seriesList.length === 0) {
+      await ctx.editMessageText(`${EMOJIS.error} Bu janrdagi seriallar topilmadi.`)
+      return
+    }
+    const category = await CategoryService.getBySlug(genreSlug)
+    const genreName = category?.name || genreSlug
+    await ctx.editMessageText(`${EMOJIS.category} <b>${genreName} (${total} ta):</b>\n\n`, {
+      parse_mode: 'HTML',
+      reply_markup: seriesSearchResultsKeyboard(seriesList, 1, Math.ceil(total / PAGINATION.pageSize)).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleSeriesSearchByGenreSelect error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleSeriesSearchResults(ctx: BotContext, query?: string) {
+  try {
+    const searchQuery = query || (ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : '')
+    if (!searchQuery) {
+      await ctx.reply(`${EMOJIS.warning} Qidiruv matnini kiriting.`)
+      return
+    }
+    const { seriesList, total } = await SeriesService.search(searchQuery, 1, PAGINATION.pageSize)
+    if (seriesList.length === 0) {
+      await ctx.reply(`${EMOJIS.error} "${searchQuery}" bo'yicha hech narsa topilmadi.`)
+      return
+    }
+    const text = `${EMOJIS.search} <b>"${searchQuery}" bo'yicha (${total} ta):</b>\n\n`
+    await ctx.reply(text, {
+      parse_mode: 'HTML',
+      reply_markup: seriesSearchResultsKeyboard(seriesList, 1, Math.ceil(total / PAGINATION.pageSize)).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleSeriesSearchResults error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
 export async function handleSeriesSearchByGenre(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
@@ -341,6 +386,24 @@ export async function handleEpisodePagination(ctx: BotContext) {
 }
 
 function seriesListKeyboard(seriesList: any[], page: number, totalPages: number) {
+  const { Markup } = require('telegraf')
+  const buttons = seriesList.map((s, index) => [
+    Markup.button.callback(`${index + 1 + (page - 1) * 10}. ${s.seriesName}`, `series_detail:${s.seriesCode}`),
+  ])
+
+  if (totalPages > 1) {
+    const navButtons: ReturnType<typeof Markup.button.callback>[] = []
+    if (page > 1) navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `series_page:${page - 1}`))
+    navButtons.push(Markup.button.callback(`${page}/${totalPages}`, 'page_info'))
+    if (page < totalPages) navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `series_page:${page + 1}`))
+    buttons.push(navButtons)
+  }
+
+  buttons.push([Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back')])
+  return Markup.inlineKeyboard(buttons)
+}
+
+function seriesSearchResultsKeyboard(seriesList: any[], page: number, totalPages: number) {
   const { Markup } = require('telegraf')
   const buttons = seriesList.map((s, index) => [
     Markup.button.callback(`${index + 1 + (page - 1) * 10}. ${s.seriesName}`, `series_detail:${s.seriesCode}`),

@@ -120,6 +120,28 @@ export async function handleMovieSearchByName(ctx: BotContext) {
   }
 }
 
+export async function handleMovieSearchResults(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const genreSlug = match?.[1] || ''
+    const { movies, total } = await MovieService.getAll(1, PAGINATION.pageSize, { genre: genreSlug })
+    if (movies.length === 0) {
+      await ctx.editMessageText(`${EMOJIS.error} Bu janrdagi kinolar topilmadi.`)
+      return
+    }
+    const category = await CategoryService.getBySlug(genreSlug)
+    const genreName = category?.name || genreSlug
+    await ctx.editMessageText(`${EMOJIS.category} <b>${genreName} (${total} ta):</b>\n\n`, {
+      parse_mode: 'HTML',
+      reply_markup: movieListKeyboard(movies, 1, Math.ceil(total / PAGINATION.pageSize)).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleMovieSearchResults error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
 export async function handleMovieSearchByGenre(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()

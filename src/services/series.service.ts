@@ -34,19 +34,29 @@ export class SeriesService {
     return series ? series.toObject() : null
   }
 
-  static async getAll(page: number = 1, limit: number = 10): Promise<{ seriesList: ISeries[]; total: number; page: number; totalPages: number }> {
+  static async getAll(page: number = 1, limit: number = 10, filters?: { genre?: string }): Promise<{ seriesList: ISeries[]; total: number; page: number; totalPages: number }> {
+    const query: Record<string, unknown> = { isActive: true }
+    if (filters?.genre) query.genre = { $in: [filters.genre] }
+
     const skip = (page - 1) * limit
     const [seriesList, total] = await Promise.all([
-      Series.find({ isActive: true }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Series.countDocuments({ isActive: true }),
+      Series.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Series.countDocuments(query),
     ])
     return { seriesList, total, page, totalPages: Math.ceil(total / limit) }
   }
 
-  static async search(query: string): Promise<ISeries[]> {
-    return Series.find({ $text: { $search: query }, isActive: true })
-      .sort({ score: { $meta: 'textScore' } })
-      .lean()
+  static async search(query: string, page: number = 1, limit: number = 10): Promise<{ seriesList: ISeries[]; total: number }> {
+    const skip = (page - 1) * limit
+    const [seriesList, total] = await Promise.all([
+      Series.find({ $text: { $search: query }, isActive: true })
+        .sort({ score: { $meta: 'textScore' } })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Series.countDocuments({ $text: { $search: query }, isActive: true }),
+    ])
+    return { seriesList, total }
   }
 
   static async fuzzySearch(query: string): Promise<ISeries[]> {

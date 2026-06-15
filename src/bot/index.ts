@@ -2,6 +2,7 @@ import { Telegraf, session } from 'telegraf'
 import { config } from '../config'
 import { BotContext } from '../types'
 import { MovieService } from '../services/movie.service'
+import { SeriesService } from '../services/series.service'
 import { formatMovieInfo } from '../utils/formatters'
 import { movieDetailKeyboard } from '../keyboards/movie'
 import { authMiddleware } from '../middlewares/auth'
@@ -16,13 +17,15 @@ import {
   handleMovieSearchByCode, handleMovieSearchByName,
   handleMovieSearchByGenre, handleMovieSearchByYear,
   handleMoviePlay, handleMovieDownload, handleMoviePagination,
-  handleMovieSave,
+  handleMovieSave, handleMovieSearchResults,
 } from '../controllers/movie.controller'
 import {
   handleSeriesList, handleSeriesDetail,
   handleSeasonList, handleEpisodeList, handleEpisodePlay,
   handleSeriesSearch, handleSeriesPagination, handleEpisodePagination,
-  handleSeriesSave,
+  handleSeriesSave, handleSeriesSearchByCode, handleSeriesSearchByName,
+  handleSeriesSearchByGenre, handleSeriesSearchByYear, handleSeriesSearchByGenreSelect,
+  handleSeriesSearchResults,
 } from '../controllers/series.controller'
 import {
   handleCategoryList, handleCategorySelect, handleCategoryPagination,
@@ -58,6 +61,9 @@ import {
   handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
   handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
   handleAdminRefundProcess, handleAdminSendBroadcastProcess, handleAdminAddAdminProcess,
+  handleAdminDeleteMovieConfirm, handleAdminDeleteCategoryConfirm, handleAdminDeleteChannelConfirm,
+  handleAdminGrantPremiumSelect, handleAdminPaymentsAll, handleAdminBroadcastConfirm,
+  handleAdminTogglePermission, handleAdminSaveAdmin, handleAdminRemoveAdminConfirm,
 } from '../controllers/admin.controller'
 import {
   handleStats, handleDetailedStats,
@@ -139,6 +145,7 @@ bot.action(/^movie_play:(.+)$/, handleMoviePlay)
 bot.action(/^movie_download:(.+)$/, handleMovieDownload)
 bot.action(/^movie_save:(.+)$/, handleMovieSave)
 bot.action(/^movie_page:(\d+)$/, handleMoviePagination)
+bot.action(/^movie_search_genre:(.+)$/, handleMovieSearchResults)
 
 bot.action('series', handleSeriesList)
 bot.action('series_search', handleSeriesSearch)
@@ -149,6 +156,11 @@ bot.action(/^episode_play:(.+)$/, handleEpisodePlay)
 bot.action(/^series_save:(.+)$/, handleSeriesSave)
 bot.action(/^series_page:(\d+)$/, handleSeriesPagination)
 bot.action(/^episode_page:(.+)$/, handleEpisodePagination)
+bot.action('series_search_code', handleSeriesSearchByCode)
+bot.action('series_search_name', handleSeriesSearchByName)
+bot.action('series_search_genre', handleSeriesSearchByGenre)
+bot.action(/^series_search_genre:(.+)$/, handleSeriesSearchByGenreSelect)
+bot.action('series_search_year', handleSeriesSearchByYear)
 
 bot.action('categories', handleCategoryList)
 bot.action(/^category:(.+)$/, handleCategorySelect)
@@ -179,6 +191,9 @@ bot.action(/^premium_buy:(.+)$/, handlePremiumBuy)
 bot.action(/^premium_confirm:(.+)$/, handlePremiumConfirm)
 
 bot.action('recommendations', handleRecommendations)
+bot.action('page_info', async (ctx) => { await ctx.answerCbQuery?.() })
+bot.action('premium_cancel', handlePremiumInfo)
+bot.action('premium_extend', handlePremiumInfo)
 
 bot.action('admin_panel', handleAdminPanel)
 bot.action('admin_dashboard', handleAdminDashboard)
@@ -186,6 +201,7 @@ bot.action('admin_movies', handleAdminMovies)
 bot.action('admin_add_movie', handleAdminAddMovie)
 bot.action(/^admin_add_movie_code_select:(.+)$/, handleAdminAddMovieCodeSelect)
 bot.action(/^admin_delete_movie:(.+)$/, handleAdminDeleteMovie)
+bot.action(/^admin_movie_delete_confirm_(.+)$/, handleAdminDeleteMovieConfirm)
 bot.action(/^admin_edit_movie:(.+)$/, handleAdminEditMovie)
 bot.action('admin_series', handleAdminSeries)
 bot.action('admin_add_series', handleAdminAddSeries)
@@ -194,9 +210,11 @@ bot.action(/^admin_add_episode:(.+)$/, handleAdminAddEpisode)
 bot.action('admin_categories', handleAdminCategories)
 bot.action('admin_add_category', handleAdminAddCategory)
 bot.action(/^admin_delete_category:(.+)$/, handleAdminDeleteCategory)
+bot.action(/^admin_category_delete_confirm_(.+)$/, handleAdminDeleteCategoryConfirm)
 bot.action('admin_channels', handleAdminChannels)
 bot.action('admin_add_channel', handleAdminAddChannel)
 bot.action(/^admin_delete_channel:(.+)$/, handleAdminDeleteChannel)
+bot.action(/^admin_channel_delete_confirm_(.+)$/, handleAdminDeleteChannelConfirm)
 bot.action('admin_users', handleAdminUsers)
 bot.action('admin_users_list', handleAdminUsersList)
 bot.action(/^admin_ban:(.+)$/, handleAdminBanUser)
@@ -217,6 +235,12 @@ bot.action('admin_settings', handleAdminSettings)
 bot.action('admin_logs', handleAdminLogs)
 bot.action(/^admin_logs_(admin|users|payments|errors)$/, handleAdminLogsView)
 bot.action(/^admin_page:([a-z_]+):(\d+)$/, handleAdminPagination)
+bot.action(/^admin_grant_plan_(.+)$/, handleAdminGrantPremiumSelect)
+bot.action('admin_payments_all', handleAdminPaymentsAll)
+bot.action('admin_broadcast_confirm_send', handleAdminBroadcastConfirm)
+bot.action(/^admin_toggle_perm_(.+)$/, handleAdminTogglePermission)
+bot.action('admin_save_admin_permissions', handleAdminSaveAdmin)
+bot.action(/^admin_remove_admin_confirm_(.+)$/, handleAdminRemoveAdminConfirm)
 
 bot.on('video', async (ctx) => {
   if ((ctx as any).session?.data?.step === 'admin_add_movie_video') {
@@ -276,6 +300,37 @@ bot.on('text', async (ctx) => {
     return
   }
 
+  if (session?.data?.step === 'movie_search_code' || session?.data?.step === 'search_code') {
+    session.data.step = null
+    session.data.searchMode = null
+    const { MovieService } = require('../services/movie.service')
+    const movie = await MovieService.getByCode(ctx.message.text.trim().toUpperCase())
+    if (movie) {
+      const { formatMovieInfo } = require('../utils/formatters')
+      const { movieDetailKeyboard } = require('../keyboards/movie')
+      await ctx.reply(formatMovieInfo(movie), { parse_mode: 'HTML', reply_markup: movieDetailKeyboard(movie.movieCode).reply_markup })
+    } else {
+      await ctx.reply('❌ Kino topilmadi.')
+    }
+    return
+  }
+  if (session?.data?.step === 'series_search_code') {
+    session.data.step = null
+    const series = await SeriesService.getByCode(ctx.message.text.trim().toUpperCase())
+    if (series) {
+      const { formatSeriesInfo } = require('../utils/formatters')
+      const { seriesDetailKeyboard } = require('../keyboards/series')
+      await ctx.reply(formatSeriesInfo(series), { parse_mode: 'HTML', reply_markup: seriesDetailKeyboard(series.seriesCode).reply_markup })
+    } else {
+      await ctx.reply('❌ Serial topilmadi.')
+    }
+    return
+  }
+  if (session?.data?.step === 'series_search_name' || session?.data?.step === 'series_search_year') {
+    session.data.step = null
+    await handleSeriesSearchResults(ctx, ctx.message.text)
+    return
+  }
   if (session?.data?.searchMode === 'code') {
     session.data.searchMode = null
     await handleSearchResults(ctx, ctx.message.text, 1)
