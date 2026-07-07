@@ -49,8 +49,8 @@ import {
   handleAdminPanel, handleAdminDashboard,
   handleAdminMovies, handleAdminMovieList, handleAdminAddMovie, handleAdminDeleteMovie, handleAdminEditMovie,
   handleAdminSeries, handleAdminSeriesList, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
-  handleAdminCategories, handleAdminAddCategory, handleAdminDeleteCategory,
-  handleAdminChannels, handleAdminAddChannel, handleAdminDeleteChannel,
+  handleAdminCategories, handleAdminCategoryList, handleAdminAddCategory, handleAdminDeleteCategory,
+  handleAdminChannels, handleAdminChannelList, handleAdminAddChannel, handleAdminDeleteChannel,
   handleAdminUsers, handleAdminUsersList, handleAdminBanUser, handleAdminUnbanUser,
   handleAdminPremium, handleAdminGrantPremium, handleAdminPremiumPrices,
   handleAdminPayments, handleAdminRefund,
@@ -387,7 +387,7 @@ bot.hears("📂 Kategoriya qo'shish", async (ctx: BotContext) => {
 })
 bot.hears("📋 Kategoriyalar ro'yxati", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
-  await handleAdminCategories(ctx)
+  await handleAdminCategoryList(ctx)
 })
 bot.hears("📢 Kanal qo'shish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
@@ -395,7 +395,7 @@ bot.hears("📢 Kanal qo'shish", async (ctx: BotContext) => {
 })
 bot.hears("📋 Kanallar ro'yxati", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
-  await handleAdminChannels(ctx)
+  await handleAdminChannelList(ctx)
 })
 bot.hears("💎 Premium berish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}

@@ -858,6 +858,29 @@ export async function handleAdminCategories(ctx: BotContext) {
   }
 }
 
+export async function handleAdminCategoryList(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const categories = await CategoryService.getAll()
+
+    if (categories.length === 0) {
+      await ctx.reply(`${EMOJIS.category} Kategoriyalar mavjud emas.`)
+      return
+    }
+
+    const lines = categories.map((c, i) =>
+      `${i + 1}. ${c.name} | <code>${c.slug}</code>`
+    )
+
+    await ctx.reply(`${EMOJIS.category} <b>Barcha kategoriyalar (${categories.length} ta)</b>\n\n${lines.join('\n')}`, {
+      parse_mode: 'HTML',
+    })
+  } catch (error) {
+    logger.error(error, 'handleAdminCategoryList error')
+    await handleControllerError(ctx, error)
+  }
+}
+
 export async function handleAdminAddCategory(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
@@ -982,6 +1005,29 @@ export async function handleAdminChannels(ctx: BotContext) {
     await adminReply(ctx, `${EMOJIS.channel} <b>Kanal boshqaruvi</b>\n\nKerakli amalni tanlang:`, adminChannelsReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminChannels error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+export async function handleAdminChannelList(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const channels = await ChannelService.getAll()
+
+    if (channels.length === 0) {
+      await ctx.reply(`${EMOJIS.channel} Kanallar mavjud emas.`)
+      return
+    }
+
+    const lines = channels.map((ch, i) =>
+      `${i + 1}. ${ch.channelName} | <code>${ch.channelUrl || ch.channelId}</code>`
+    )
+
+    await ctx.reply(`${EMOJIS.channel} <b>Barcha kanallar (${channels.length} ta)</b>\n\n${lines.join('\n')}`, {
+      parse_mode: 'HTML',
+    })
+  } catch (error) {
+    logger.error(error, 'handleAdminChannelList error')
     await handleControllerError(ctx, error)
   }
 }
