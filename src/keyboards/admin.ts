@@ -3,7 +3,7 @@ import { EMOJIS } from '../config/constants'
 
 export function adminMainReplyKeyboard() {
   return Markup.keyboard([
-    ['📊 Dashboard', '🎬 Kinolar', '📂 Kategoriyalar'],
+    ['📊 Dashboard', '🎬 Kinolar'],
     ['📢 Kanallar', '👥 Foydalanuvchilar', '💎 Premium'],
     ['⭐ To\'lovlar', '📨 Broadcast', '📈 Statistika'],
     ['🛡 Moderatorlar', '⚙ Sozlamalar', '📝 Loglar'],
@@ -22,13 +22,6 @@ export function adminMoviesReplyKeyboard() {
 export function adminSeriesReplyKeyboard() {
   return Markup.keyboard([
     ['🎞 Serial qo\'shish', '📋 Seriallar ro\'yxati'],
-    ['🔙 Admin panel'],
-  ]).resize()
-}
-
-export function adminCategoriesReplyKeyboard() {
-  return Markup.keyboard([
-    ['📂 Kategoriya qo\'shish', '📋 Kategoriyalar ro\'yxati'],
     ['🔙 Admin panel'],
   ]).resize()
 }

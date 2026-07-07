@@ -16,7 +16,6 @@ import {
   adminMoviesReplyKeyboard,
   adminSeriesReplyKeyboard,
   adminSeriesListKeyboard,
-  adminCategoriesReplyKeyboard,
   adminChannelsReplyKeyboard,
   adminPremiumReplyKeyboard,
   adminPaymentsReplyKeyboard,
@@ -851,7 +850,13 @@ export async function handleAdminAddEpisodeVideo(ctx: BotContext) {
 export async function handleAdminCategories(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    await adminReply(ctx, `${EMOJIS.category} <b>Kategoriya boshqaruvi</b>\n\nKerakli amalni tanlang:`, adminCategoriesReplyKeyboard())
+    await adminReply(ctx, `${EMOJIS.category} <b>Kategoriya boshqaruvi</b>\n\nKerakli amalni tanlang:`,
+      { reply_markup: { inline_keyboard: [
+        [{ text: `${EMOJIS.add} Kategoriya qo'shish`, callback_data: 'admin_add_category' }],
+        [{ text: `${EMOJIS.category} Kategoriyalar ro'yxati`, callback_data: 'admin_category_list' }],
+        [{ text: `${EMOJIS.back} Admin panel`, callback_data: 'admin_panel' }],
+      ] } }
+    )
   } catch (error) {
     logger.error(error, 'handleAdminCategories error')
     await handleControllerError(ctx, error)

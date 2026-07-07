@@ -49,7 +49,6 @@ import {
   handleAdminPanel, handleAdminDashboard,
   handleAdminMovies, handleAdminMovieList, handleAdminAddMovie, handleAdminDeleteMovie, handleAdminEditMovie,
   handleAdminSeries, handleAdminSeriesList, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
-  handleAdminCategories, handleAdminCategoryList, handleAdminAddCategory, handleAdminDeleteCategory,
   handleAdminChannels, handleAdminChannelList, handleAdminAddChannel, handleAdminDeleteChannel,
   handleAdminEditChannel, handleAdminEditChannelSelect, handleAdminEditChannelToggleActive,
   handleAdminEditChannelPromptName, handleAdminEditChannelPromptUrl, handleAdminEditChannelProcess,
@@ -65,9 +64,9 @@ import {
   handleAdminLogs, handleAdminLogsView, handleAdminPagination,
   handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo, handleAdminAddMovieCodeSelect,
   handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
-  handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
+  handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
   handleAdminRefundProcess, handleAdminSendBroadcastProcess, handleAdminAddAdminProcess,
-  handleAdminDeleteMovieConfirm, handleAdminDeleteCategoryConfirm, handleAdminDeleteChannelConfirm,
+  handleAdminDeleteMovieConfirm, handleAdminDeleteChannelConfirm,
   handleAdminGrantPremiumSelect, handleAdminPaymentsAll, handleAdminBroadcastConfirm, handleAdminBroadcastCancel,
   handleAdminTogglePermission, handleAdminSaveAdmin, handleAdminRemoveAdminConfirm,
   handleAdminEditMovieSelect, handleAdminEditMovieField, handleAdminEditMovieProcess,
@@ -87,14 +86,6 @@ bot.use(async (ctx, next) => {
   return next()
 })
 bot.use(errorHandler)
-bot.use(authMiddleware)
-bot.use(rateLimitMiddleware)
-bot.use(antiSpamMiddleware)
-
-bot.use(async (ctx, next) => {
-  return subscriptionMiddleware(ctx, next)
-})
-
 bot.use(async (ctx, next) => {
   try {
     const maintenance = await SettingService.isMaintenanceMode()
@@ -107,6 +98,13 @@ bot.use(async (ctx, next) => {
     }
   } catch {}
   return next()
+})
+bot.use(authMiddleware)
+bot.use(rateLimitMiddleware)
+bot.use(antiSpamMiddleware)
+
+bot.use(async (ctx, next) => {
+  return subscriptionMiddleware(ctx, next)
 })
 
 bot.command('ping', async (ctx) => {
@@ -233,10 +231,6 @@ bot.action('admin_series_list', handleAdminSeriesList)
 bot.action('admin_add_series', handleAdminAddSeries)
 bot.action(/^admin_add_season:(.+)$/, handleAdminAddSeason)
 bot.action(/^admin_add_episode:(.+)$/, handleAdminAddEpisode)
-bot.action('admin_categories', handleAdminCategories)
-bot.action('admin_add_category', handleAdminAddCategory)
-bot.action(/^admin_delete_category:(.+)$/, handleAdminDeleteCategory)
-bot.action(/^admin_category_delete_confirm_(.+)$/, handleAdminDeleteCategoryConfirm)
 bot.action('admin_channels', handleAdminChannels)
 bot.action('admin_add_channel', handleAdminAddChannel)
 bot.action(/^admin_delete_channel:(.+)$/, handleAdminDeleteChannel)
@@ -324,10 +318,6 @@ bot.hears('🎬 Kinolar', async (ctx: BotContext) => {
     await handleMovieList(ctx)
   }
 })
-bot.hears('📂 Kategoriyalar', async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleAdminCategories(ctx)
-})
 bot.hears('📢 Kanallar', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminChannels(ctx)
@@ -386,14 +376,6 @@ bot.hears("✏️ Kinoni tahrirlash", async (ctx: BotContext) => {
 bot.hears("🗑 Kinoni o'chirish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminDeleteMovie(ctx)
-})
-bot.hears("📂 Kategoriya qo'shish", async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleAdminAddCategory(ctx)
-})
-bot.hears("📋 Kategoriyalar ro'yxati", async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleAdminCategoryList(ctx)
 })
 bot.hears("📢 Kanal qo'shish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
@@ -491,8 +473,6 @@ bot.on('text', async (ctx) => {
       await handleAdminAddSeasonProcess(ctx)
     } else if (step.startsWith('admin_add_episode')) {
       await handleAdminAddEpisodeProcess(ctx)
-    } else if (step.startsWith('admin_add_category')) {
-      await handleAdminAddCategoryProcess(ctx)
     } else if (step.startsWith('admin_ban')) {
       await handleAdminBanUserProcess(ctx)
     } else if (step.startsWith('admin_grant')) {
