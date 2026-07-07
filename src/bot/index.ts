@@ -290,17 +290,9 @@ bot.action(/^trending_(\d+)d$/, handleTrendingPeriod)
 
 // ─── ReplyKeyboard hears handlers ─────────────────────────
 
-bot.hears('🎬 Kinolar', async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleMovieList(ctx)
-})
 bot.hears('👤 Profil', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleProfile(ctx)
-})
-bot.hears('💎 Premium', async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handlePremiumInfo(ctx)
 })
 bot.hears('🛡 Admin', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
@@ -309,6 +301,168 @@ bot.hears('🛡 Admin', async (ctx: BotContext) => {
 bot.hears('🏠 Bosh menyu', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleMainMenu(ctx)
+})
+
+// ─── Admin ReplyKeyboard hears handlers ────────────────────
+
+bot.hears('📊 Dashboard', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminDashboard(ctx)
+})
+bot.hears('🎬 Kinolar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  if (ctx.session?.user?.role && ['owner', 'superadmin', 'admin', 'moderator', 'support'].includes(ctx.session.user.role)) {
+    await handleAdminMovies(ctx)
+  } else {
+    await handleMovieList(ctx)
+  }
+})
+bot.hears('🎞 Seriallar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSeries(ctx)
+})
+bot.hears('📂 Kategoriyalar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminCategories(ctx)
+})
+bot.hears('📢 Kanallar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminChannels(ctx)
+})
+bot.hears('👥 Foydalanuvchilar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminUsers(ctx)
+})
+bot.hears('💎 Premium', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  if (ctx.session?.user?.role && ['owner', 'superadmin', 'admin', 'moderator', 'support'].includes(ctx.session.user.role)) {
+    await handleAdminPremium(ctx)
+  } else {
+    await handlePremiumInfo(ctx)
+  }
+})
+bot.hears("⭐ To'lovlar", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminPayments(ctx)
+})
+bot.hears('📨 Broadcast', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminBroadcast(ctx)
+})
+bot.hears('📈 Statistika', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminStats(ctx)
+})
+bot.hears('🛡 Moderatorlar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminModerators(ctx)
+})
+bot.hears('⚙ Sozlamalar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSettings(ctx)
+})
+bot.hears('📝 Loglar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminLogs(ctx)
+})
+
+// ─── Admin sub-menu ReplyKeyboard hears handlers ───────────
+
+bot.hears("🎬 Kino qo'shish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminAddMovie(ctx)
+})
+bot.hears("📋 Kinolar ro'yxati", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminMovieList(ctx)
+})
+bot.hears("✏️ Kinoni tahrirlash", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminEditMovie(ctx)
+})
+bot.hears("🗑 Kinoni o'chirish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminDeleteMovie(ctx)
+})
+bot.hears("🎞 Serial qo'shish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminAddSeries(ctx)
+})
+bot.hears("📋 Seriallar ro'yxati", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSeriesList(ctx)
+})
+bot.hears("📂 Kategoriya qo'shish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminAddCategory(ctx)
+})
+bot.hears("📋 Kategoriyalar ro'yxati", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminCategories(ctx)
+})
+bot.hears("📢 Kanal qo'shish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminAddChannel(ctx)
+})
+bot.hears("📋 Kanallar ro'yxati", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminChannels(ctx)
+})
+bot.hears("💎 Premium berish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminGrantPremium(ctx)
+})
+bot.hears("⭐ Barcha to'lovlar", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminPaymentsAll(ctx)
+})
+bot.hears('📨 Broadcast', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSendBroadcast(ctx)
+})
+bot.hears("🛡 Moderator qo'shish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminAddAdmin(ctx)
+})
+bot.hears("🔙 Admin panel", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminPanel(ctx)
+})
+bot.hears('🤖 Bot holati', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSettingsStatus(ctx)
+})
+bot.hears('🔧 Xizmat rejimi', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSettingsMaintenance(ctx)
+})
+bot.hears('📄 Sahifa hajmi', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSettingsPageSize(ctx)
+})
+bot.hears('📢 Kinolar kanali', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminSettingsChannelLink(ctx)
+})
+bot.hears('🔧 Admin amallari', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  ctx.match = ['', 'admin'] as any
+  await handleAdminLogsView(ctx)
+})
+bot.hears("👤 Foydalanuvchi amallari", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  ctx.match = ['', 'users'] as any
+  await handleAdminLogsView(ctx)
+})
+bot.hears("💳 To'lov amallari", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  ctx.match = ['', 'payments'] as any
+  await handleAdminLogsView(ctx)
+})
+bot.hears('❌ Xatoliklar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  ctx.match = ['', 'errors'] as any
+  await handleAdminLogsView(ctx)
 })
 
 bot.action('check_subscription', async (ctx) => {

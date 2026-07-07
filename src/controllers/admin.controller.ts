@@ -12,18 +12,19 @@ import { BroadcastService } from '../services/broadcast.service'
 import { SettingService } from '../services/setting.service'
 
 import {
-  adminDashboardKeyboard,
-  adminMoviesKeyboard,
-  adminSeriesKeyboard,
+  adminMainReplyKeyboard,
+  adminMoviesReplyKeyboard,
+  adminSeriesReplyKeyboard,
   adminSeriesListKeyboard,
-  adminCategoriesKeyboard,
-  adminChannelsKeyboard,
-  adminPremiumKeyboard,
-  adminPaymentsKeyboard,
-  adminBroadcastKeyboard,
-  adminModeratorsKeyboard,
+  adminCategoriesReplyKeyboard,
+  adminChannelsReplyKeyboard,
+  adminPremiumReplyKeyboard,
+  adminPaymentsReplyKeyboard,
+  adminBroadcastReplyKeyboard,
+  adminModeratorsReplyKeyboard,
+  adminSettingsReplyKeyboard,
+  adminLogsReplyKeyboard,
   adminSettingsKeyboard,
-  adminLogsKeyboard,
 } from '../keyboards/admin'
 import { formatStats } from '../utils/formatters'
 import { handleControllerError } from '../utils/helpers'
@@ -52,16 +53,15 @@ async function logAdminAction(ctx: BotContext, action: string, targetId?: string
 
 // ─── Dashboard ────────────────────────────────────────────
 
-async function adminReply(ctx: BotContext, text: string, keyboard: any) {
+async function adminReply(ctx: BotContext, text: string, keyboard?: any) {
   try {
     if (ctx.callbackQuery) {
-      await ctx.editMessageText(text, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
-    } else {
-      await ctx.reply(text, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+      try { await ctx.deleteMessage() } catch {}
     }
+    await ctx.reply(text, { parse_mode: 'HTML', reply_markup: keyboard?.reply_markup })
   } catch {
     try {
-      await ctx.reply(text, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
+      await ctx.reply(text, { parse_mode: 'HTML', reply_markup: keyboard?.reply_markup })
     } catch {}
   }
 }
@@ -85,7 +85,7 @@ export async function handleAdminPanel(ctx: BotContext) {
       `Kerakli bo'limni tanlang:`,
     ].join('')
 
-    await adminReply(ctx, text, adminDashboardKeyboard())
+    await adminReply(ctx, text, adminMainReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminPanel error')
     await handleControllerError(ctx, error)
@@ -98,10 +98,7 @@ export async function handleAdminDashboard(ctx: BotContext) {
     const stats = await StatsService.getDashboardStats()
     const text = formatStats(stats)
 
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminDashboardKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminMainReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminDashboard error')
     await handleControllerError(ctx, error)
@@ -113,10 +110,7 @@ export async function handleAdminDashboard(ctx: BotContext) {
 export async function handleAdminMovies(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    await ctx.editMessageText(`${EMOJIS.movie} <b>Kino boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
-      parse_mode: 'HTML',
-      reply_markup: adminMoviesKeyboard().reply_markup,
-    })
+    await adminReply(ctx, `${EMOJIS.movie} <b>Kino boshqaruvi</b>\n\nKerakli amalni tanlang:`, adminMoviesReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminMovies error')
     await handleControllerError(ctx, error)
@@ -133,24 +127,12 @@ export async function handleAdminAddMovie(ctx: BotContext) {
       }
     }
 
-    const recent = await MovieService.getRecentCodes(10)
-    const { Markup } = require('telegraf')
-    const buttons = recent.length > 0
-      ? recent.map((m) => [Markup.button.callback(m.movieCode, `admin_add_movie_code_select:${m.movieCode}`)])
-      : []
-
-    await ctx.editMessageText(
+    await adminReply(ctx,
       `${EMOJIS.movie} <b>Yangi kino qo'shish</b>\n\n` +
       `1/3: Kino kodini kiriting.\n` +
       `Misol: <code>AVATAR01</code>\n\n` +
       `${EMOJIS.cross} Bekor qilish uchun /cancel`,
-      {
-        parse_mode: 'HTML',
-        reply_markup: Markup.inlineKeyboard([
-          ...buttons,
-          [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_movies')],
-        ]).reply_markup,
-      }
+      undefined
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddMovie error')
@@ -271,7 +253,7 @@ export async function handleAdminDeleteMovie(ctx: BotContext) {
     const { movies } = await MovieService.getAll(1, 10)
 
     if (movies.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.movie} O'chirish uchun kinolar mavjud emas.`)
+      await ctx.reply(`${EMOJIS.movie} O'chirish uchun kinolar mavjud emas.`)
       return
     }
 
@@ -281,7 +263,7 @@ export async function handleAdminDeleteMovie(ctx: BotContext) {
 
     buttons.push([{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_movies' }])
 
-    await ctx.editMessageText(`${EMOJIS.movie} <b>Kino o'chirish</b>\n\nO'chirmoqchi bo'lgan kinoni tanlang:`, {
+    await ctx.reply(`${EMOJIS.movie} <b>Kino o'chirish</b>\n\nO'chirmoqchi bo'lgan kinoni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: { inline_keyboard: buttons },
     })
@@ -319,7 +301,7 @@ export async function handleAdminEditMovie(ctx: BotContext) {
     const { movies } = await MovieService.getAll(1, 10)
 
     if (movies.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.movie} Tahrirlash uchun kinolar mavjud emas.`)
+      await ctx.reply(`${EMOJIS.movie} Tahrirlash uchun kinolar mavjud emas.`)
       return
     }
 
@@ -329,7 +311,7 @@ export async function handleAdminEditMovie(ctx: BotContext) {
 
     buttons.push([{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_movies' }])
 
-    await ctx.editMessageText(`${EMOJIS.movie} <b>Kinoni tahrirlash</b>\n\nTahrirlamoqchi bo'lgan kinoni tanlang:`, {
+    await ctx.reply(`${EMOJIS.movie} <b>Kinoni tahrirlash</b>\n\nTahrirlamoqchi bo'lgan kinoni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: { inline_keyboard: buttons },
     })
@@ -492,7 +474,7 @@ export async function handleAdminMovieList(ctx: BotContext) {
     const { movies, total, totalPages } = await MovieService.getAll(page, PAGINATION.pageSize)
 
     if (movies.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.movie} Kinolar mavjud emas.`)
+      await ctx.reply(`${EMOJIS.movie} Kinolar mavjud emas.`)
       return
     }
 
@@ -501,7 +483,7 @@ export async function handleAdminMovieList(ctx: BotContext) {
     )
 
     const text = `${EMOJIS.movie} <b>Barcha kinolar (${total} ta)</b>\n\n${lines.join('\n')}`
-    await ctx.editMessageText(text, {
+    await ctx.reply(text, {
       parse_mode: 'HTML',
       reply_markup: adminMovieListKeyboard(page, totalPages).reply_markup,
     })
@@ -516,10 +498,7 @@ export async function handleAdminMovieList(ctx: BotContext) {
 export async function handleAdminSeries(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    await ctx.editMessageText(`${EMOJIS.series} <b>Serial boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
-      parse_mode: 'HTML',
-      reply_markup: adminSeriesKeyboard().reply_markup,
-    })
+    await adminReply(ctx, `${EMOJIS.series} <b>Serial boshqaruvi</b>\n\nKerakli amalni tanlang:`, adminSeriesReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminSeries error')
     await handleControllerError(ctx, error)
@@ -533,7 +512,7 @@ export async function handleAdminSeriesList(ctx: BotContext) {
     const { seriesList, total, totalPages } = await SeriesService.getAll(page, PAGINATION.pageSize)
 
     if (seriesList.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.series} Seriallar mavjud emas.`)
+      await ctx.reply(`${EMOJIS.series} Seriallar mavjud emas.`)
       return
     }
 
@@ -542,7 +521,7 @@ export async function handleAdminSeriesList(ctx: BotContext) {
     )
 
     const text = `${EMOJIS.series} <b>Barcha seriallar (${total} ta)</b>\n\n${lines.join('\n')}`
-    await ctx.editMessageText(text, {
+    await ctx.reply(text, {
       parse_mode: 'HTML',
       reply_markup: adminSeriesListKeyboard(page, totalPages).reply_markup,
     })
@@ -561,7 +540,7 @@ export async function handleAdminAddSeries(ctx: BotContext) {
         seriesData: {},
       }
     }
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.series} <b>Yangi serial qo'shish</b>\n\n` +
       `1-qadam: Serial kodini kiriting.\n\n` +
       `Misol: <code>STRNG01</code>\n\n` +
@@ -872,10 +851,7 @@ export async function handleAdminAddEpisodeVideo(ctx: BotContext) {
 export async function handleAdminCategories(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    await ctx.editMessageText(`${EMOJIS.category} <b>Kategoriya boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
-      parse_mode: 'HTML',
-      reply_markup: adminCategoriesKeyboard().reply_markup,
-    })
+    await adminReply(ctx, `${EMOJIS.category} <b>Kategoriya boshqaruvi</b>\n\nKerakli amalni tanlang:`, adminCategoriesReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminCategories error')
     await handleControllerError(ctx, error)
@@ -891,7 +867,7 @@ export async function handleAdminAddCategory(ctx: BotContext) {
         categoryData: {},
       }
     }
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.category} <b>Yangi kategoriya qo'shish</b>\n\n` +
       `Kategoriya nomini kiriting:\n\n` +
       `Misol: <code>Thriller</code>`,
@@ -1003,10 +979,7 @@ export async function handleAdminDeleteCategoryConfirm(ctx: BotContext) {
 export async function handleAdminChannels(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    await ctx.editMessageText(`${EMOJIS.channel} <b>Kanal boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
-      parse_mode: 'HTML',
-      reply_markup: adminChannelsKeyboard().reply_markup,
-    })
+    await adminReply(ctx, `${EMOJIS.channel} <b>Kanal boshqaruvi</b>\n\nKerakli amalni tanlang:`, adminChannelsReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminChannels error')
     await handleControllerError(ctx, error)
@@ -1022,7 +995,7 @@ export async function handleAdminAddChannel(ctx: BotContext) {
         channelData: {},
       }
     }
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.channel} <b>Kanal qo'shish</b>\n\n` +
       `Kanal username'ini kiriting (@ bilan yoki @siz):\n\n` +
       `Misol: <code>@kinokanali</code> yoki <code>kinokanali</code>`,
@@ -1154,7 +1127,7 @@ export async function handleAdminUsers(ctx: BotContext) {
       `Foydalanuvchi ID sini yuboring yoki pastdagi tugmalardan foydalaning:`,
     ].join('')
 
-    await ctx.editMessageText(text, {
+    await ctx.reply(text, {
       parse_mode: 'HTML',
       reply_markup: adminUsersKeyboard().reply_markup,
     })
@@ -1313,10 +1286,7 @@ export async function handleAdminPremium(ctx: BotContext) {
       `Kerakli amalni tanlang:`,
     ].join('')
 
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminPremiumKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminPremiumReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminPremium error')
     await handleControllerError(ctx, error)
@@ -1332,11 +1302,11 @@ export async function handleAdminGrantPremium(ctx: BotContext) {
         grantData: {},
       }
     }
-    await ctx.editMessageText(
+    await adminReply(ctx,
       `${EMOJIS.premium} <b>Premium berish</b>\n\n` +
       `Foydalanuvchi Telegram ID sini kiriting:\n\n` +
       `Misol: <code>123456789</code>`,
-      { parse_mode: 'HTML' }
+      undefined
     )
   } catch (error) {
     logger.error(error, 'handleAdminGrantPremium error')
@@ -1441,10 +1411,7 @@ export async function handleAdminPayments(ctx: BotContext) {
       `Kerakli amalni tanlang:`,
     ].join('')
 
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminPaymentsKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminPaymentsReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminPayments error')
     await handleControllerError(ctx, error)
@@ -1454,10 +1421,10 @@ export async function handleAdminPayments(ctx: BotContext) {
 export async function handleAdminPaymentsAll(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    const { payments, total, totalPages } = await PaymentService.getAllPayments(1, PAGINATION.pageSize)
+    const { payments, total } = await PaymentService.getAllPayments(1, PAGINATION.pageSize)
 
     if (payments.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.star} To'lovlar mavjud emas.`)
+      await adminReply(ctx, `${EMOJIS.star} To'lovlar mavjud emas.`, undefined)
       return
     }
 
@@ -1465,10 +1432,7 @@ export async function handleAdminPaymentsAll(ctx: BotContext) {
       `${i + 1}. <code>${p.userId}</code> | ${p.type.replace('premium_', '')} | ${p.stars}⭐ | ${p.status}`
     )
 
-    await ctx.editMessageText(`${EMOJIS.star} <b>Barcha to'lovlar (${total} ta)</b>\n\n${lines.join('\n')}`, {
-      parse_mode: 'HTML',
-      reply_markup: adminPaymentsListKeyboard(1, totalPages).reply_markup,
-    })
+    await adminReply(ctx, `${EMOJIS.star} <b>Barcha to'lovlar (${total} ta)</b>\n\n${lines.join('\n')}`, undefined)
   } catch (error) {
     logger.error(error, 'handleAdminPaymentsAll error')
     await handleControllerError(ctx, error)
@@ -1521,10 +1485,7 @@ export async function handleAdminBroadcast(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
     const text = `${EMOJIS.broadcast} <b>Broadcast boshqaruvi</b>\n\nBarcha foydalanuvchilarga xabar yuborish.\nEhtiyot bo'ling!`
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminBroadcastKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminBroadcastReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminBroadcast error')
     await handleControllerError(ctx, error)
@@ -1534,29 +1495,18 @@ export async function handleAdminBroadcast(ctx: BotContext) {
 export async function handleAdminSendBroadcast(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
-
-    let broadcastType: 'text' | 'photo' | 'video' | 'audio' = 'text'
-    if (data === 'admin_broadcast_photo') broadcastType = 'photo'
-    else if (data === 'admin_broadcast_video') broadcastType = 'video'
-    else if (data === 'admin_broadcast_audio') broadcastType = 'audio'
 
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_broadcast_content',
-        broadcastType,
+        broadcastType: 'text' as const,
         broadcastData: {},
       }
     }
 
-    const typeText = broadcastType === 'text' ? 'matn' : broadcastType === 'photo' ? 'rasm' : broadcastType === 'video' ? 'video' : 'audio'
-    const instruction = broadcastType === 'text'
-      ? 'Xabar matnini kiriting (HTML formatda):'
-      : `${typeText.charAt(0).toUpperCase() + typeText.slice(1)} fayl ID sini yuboring:`
-
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.broadcast} <b>Broadcast yaratish</b>\n\n` +
-      `Tur: ${typeText}\n\n${instruction}\n\n` +
+      `Xabar matnini kiriting (HTML formatda):\n\n` +
       `${EMOJIS.cross} /cancel - Bekor qilish`,
       { parse_mode: 'HTML' }
     )
@@ -1677,10 +1627,7 @@ export async function handleAdminStats(ctx: BotContext) {
       `  Uptime: ${Math.floor(health.uptime / 60)} min`,
     ].join('')
 
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: { inline_keyboard: [[{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_dashboard' }]] },
-    })
+    await adminReply(ctx, text, undefined)
   } catch (error) {
     logger.error(error, 'handleAdminStats error')
     await handleControllerError(ctx, error)
@@ -1701,10 +1648,7 @@ export async function handleAdminModerators(ctx: BotContext) {
       `\n\nKerakli amalni tanlang:`,
     ].join('')
 
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminModeratorsKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminModeratorsReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminModerators error')
     await handleControllerError(ctx, error)
@@ -1717,11 +1661,11 @@ export async function handleAdminAddAdmin(ctx: BotContext) {
     if (ctx.session) {
       ctx.session.data = { step: 'admin_add_admin_id' }
     }
-    await ctx.editMessageText(
+    await adminReply(ctx,
       `${EMOJIS.admin} <b>Admin qo'shish</b>\n\n` +
       `Foydalanuvchi Telegram ID sini kiriting:\n\n` +
       `Misol: <code>123456789</code>`,
-      { parse_mode: 'HTML' }
+      undefined
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddAdmin error')
@@ -1948,10 +1892,7 @@ export async function handleAdminSettings(ctx: BotContext) {
       `📄 Sahifa hajmi: <b>${pageSize} ta</b>\n`,
       `📢 Kinolar kanali: <b>${channelLink ? '✅ Sozlangan' : '❌ Sozlanmagan'}</b>\n`,
     ].join('')
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminSettingsKeyboard(pageSize, channelLink || undefined).reply_markup,
-    })
+    await adminReply(ctx, text, adminSettingsReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminSettings error')
     await handleControllerError(ctx, error)
@@ -1977,13 +1918,7 @@ export async function handleAdminSettingsStatus(ctx: BotContext) {
       `📄 Sahifa hajmi: <b>${pageSize}</b>\n`,
     ].join('')
 
-    const { Markup } = require('telegraf')
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: Markup.inlineKeyboard([
-        [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_settings')],
-      ]).reply_markup,
-    })
+    await ctx.reply(text, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminSettingsStatus error')
     await handleControllerError(ctx, error)
@@ -1995,11 +1930,10 @@ export async function handleAdminSettingsMaintenance(ctx: BotContext) {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
     const newState = await SettingService.toggleMaintenanceMode()
     await logAdminAction(ctx, 'settings_toggle_maintenance', String(newState))
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.success} Xizmat rejimi ${newState ? 'yoqildi' : 'o\'chirildi'}.\n\n` +
       `${newState ? '🔧 Bot xizmat rejimiga o\'tkazildi. Foydalanuvchilar xatolik xabarini oladi.' : '✅ Bot normal rejimda ishlashni davom ettiradi.'}`,
-      { parse_mode: 'HTML', reply_markup: { inline_keyboard: [[{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_settings' }]] } }
-    )
+      { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminSettingsMaintenance error')
     await handleControllerError(ctx, error)
@@ -2012,18 +1946,12 @@ export async function handleAdminSettingsPageSize(ctx: BotContext) {
     if (ctx.session) {
       ctx.session.data = { step: 'admin_settings_pagesize' }
     }
-    const { Markup } = require('telegraf')
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.settings} <b>Sahifa hajmini o'zgartirish</b>\n\n` +
       `Hozirgi: <b>${await SettingService.getPageSize()}</b>\n\n` +
       `Yangi sahifa hajmini kiriting (1-50):\n\n` +
       `${EMOJIS.cross} Bekor qilish uchun /cancel`,
-      {
-        parse_mode: 'HTML',
-        reply_markup: Markup.inlineKeyboard([
-          [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_settings')],
-        ]).reply_markup,
-      }
+      { parse_mode: 'HTML' }
     )
   } catch (error) {
     logger.error(error, 'handleAdminSettingsPageSize error')
@@ -2073,20 +2001,14 @@ export async function handleAdminSettingsChannelLink(ctx: BotContext) {
     if (ctx.session) {
       ctx.session.data = { step: 'admin_settings_channel_link' }
     }
-    const { Markup } = require('telegraf')
-    await ctx.editMessageText(
+    await ctx.reply(
       `${EMOJIS.settings} <b>Kinolar kanali linki</b>\n\n` +
       (currentLink
         ? `Hozirgi link: <b>${currentLink}</b>\n\n`
         : `Hozircha kanal sozlanmagan.\n\n`) +
       `Yangi kanal linkini yuboring (masalan, <code>https://t.me/your_channel</code>):\n\n` +
       `${EMOJIS.cross} Bekor qilish uchun /cancel`,
-      {
-        parse_mode: 'HTML',
-        reply_markup: Markup.inlineKeyboard([
-          [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_settings')],
-        ]).reply_markup,
-      }
+      { parse_mode: 'HTML' }
     )
   } catch (error) {
     logger.error(error, 'handleAdminSettingsChannelLink error')
@@ -2135,10 +2057,7 @@ export async function handleAdminSettingsChannelLinkProcess(ctx: BotContext) {
 export async function handleAdminLogs(ctx: BotContext) {
   try {
     if (ctx.callbackQuery) await ctx.answerCbQuery()
-    await ctx.editMessageText(`${EMOJIS.info} <b>Loglar</b>\n\nKerakli bo'limni tanlang:`, {
-      parse_mode: 'HTML',
-      reply_markup: adminLogsKeyboard().reply_markup,
-    })
+    await adminReply(ctx, `${EMOJIS.info} <b>Loglar</b>\n\nKerakli bo'limni tanlang:`, adminLogsReplyKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminLogs error')
     await handleControllerError(ctx, error)
@@ -2175,9 +2094,8 @@ export async function handleAdminLogsView(ctx: BotContext) {
       `${i + 1}. [${new Date(l.timestamp).toLocaleString('uz-UZ')}] ${l.action} | ${l.adminName || l.adminId}`
     )
 
-    await ctx.editMessageText(`${EMOJIS.info} <b>${filterLabels[filterType] || 'Loglar'} (oxirgi 20):</b>\n\n${lines.join('\n')}`, {
+    await ctx.reply(`${EMOJIS.info} <b>${filterLabels[filterType] || 'Loglar'} (oxirgi 20):</b>\n\n${lines.join('\n')}`, {
       parse_mode: 'HTML',
-      reply_markup: { inline_keyboard: [[{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_logs' }]] },
     })
   } catch (error) {
     logger.error(error, 'handleAdminLogsView error')
@@ -2284,14 +2202,4 @@ function adminUsersListKeyboard(page: number, totalPages: number) {
   ])
 }
 
-function adminPaymentsListKeyboard(page: number, totalPages: number) {
-  const { Markup } = require('telegraf')
-  const navButtons: ReturnType<typeof Markup.button.callback>[] = []
-  if (page > 1) navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `admin_payments_page_${page - 1}`))
-  navButtons.push(Markup.button.callback(`${page}/${totalPages}`, 'page_info'))
-  if (page < totalPages) navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `admin_payments_page_${page + 1}`))
-  return Markup.inlineKeyboard([
-    navButtons,
-    [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_payments')],
-  ])
-}
+
