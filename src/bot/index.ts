@@ -4,8 +4,7 @@ import { BotContext } from '../types'
 import { MovieService } from '../services/movie.service'
 import { SeriesService } from '../services/series.service'
 import { SettingService } from '../services/setting.service'
-import { formatMovieInfo } from '../utils/formatters'
-import { movieDetailKeyboard } from '../keyboards/movie'
+import { EMOJIS } from '../config/constants'
 import { authMiddleware } from '../middlewares/auth'
 import { subscriptionMiddleware } from '../middlewares/subscription'
 import { errorHandlerMiddleware as errorHandler } from '../middlewares/errorHandler'
@@ -90,8 +89,6 @@ bot.use(rateLimitMiddleware)
 bot.use(antiSpamMiddleware)
 
 bot.use(async (ctx, next) => {
-  const txt = ctx.message && 'text' in ctx.message ? ctx.message.text : ''
-  if (txt === '/start') return next()
   return subscriptionMiddleware(ctx, next)
 })
 
@@ -295,14 +292,6 @@ bot.hears('🎬 Kinolar', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleMovieList(ctx)
 })
-bot.hears('🎞 Seriallar', async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleSeriesList(ctx)
-})
-bot.hears('🔍 Qidirish', async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleSearch(ctx)
-})
 bot.hears('👤 Profil', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleProfile(ctx)
@@ -416,8 +405,22 @@ bot.on('text', async (ctx) => {
   const text = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
   if (text) {
     const movie = await MovieService.getByCode(text)
-    if (movie) {
-      await ctx.reply(formatMovieInfo(movie), { parse_mode: 'HTML', reply_markup: movieDetailKeyboard(movie.movieCode).reply_markup })
+    if (movie && movie.fileId) {
+      const userId = ctx.from?.id
+      if (userId) {
+        try {
+          const WatchHistoryService = (await import('../services/watchHistory.service')).WatchHistoryService
+          const movieId = (movie as any)._id?.toString() || movie.movieCode
+          await WatchHistoryService.add(userId, movieId, 'movie')
+        } catch {}
+      }
+      await MovieService.incrementViews(movie.movieCode)
+      await ctx.replyWithVideo(movie.fileId, {
+        caption: `${EMOJIS.movie} <b>${movie.movieName}</b>\n\n${EMOJIS.views} Tomosha qiling, yoqimli tomosha!`,
+        parse_mode: 'HTML',
+        supports_streaming: true,
+        protect_content: true,
+      })
       return
     }
   }

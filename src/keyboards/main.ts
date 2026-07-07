@@ -12,8 +12,7 @@ export function mainMenuKeyboard() {
 
 export function mainMenuReplyKeyboard() {
   return Markup.keyboard([
-    ['🎬 Kinolar', '🎞 Seriallar'],
-    ['🔍 Qidirish', '👤 Profil'],
+    ['🎬 Kinolar', '👤 Profil'],
     ['💎 Premium', '🛡 Admin'],
   ]).resize()
 }

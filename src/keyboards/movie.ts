@@ -2,9 +2,8 @@ import { Markup } from 'telegraf'
 import { IMovie } from '../types'
 import { EMOJIS } from '../config/constants'
 
-export function movieDetailKeyboard(movieCode: string) {
+export function movieDetailKeyboard(_movieCode: string) {
   return Markup.inlineKeyboard([
-    [Markup.button.callback(`${EMOJIS.views} Ko'rish`, `movie_play:${movieCode}`)],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back')],
   ])
 }
