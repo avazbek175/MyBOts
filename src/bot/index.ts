@@ -40,6 +40,7 @@ import {
   handleProfile, handleFavorites,
   handleAddFavorite, handleRemoveFavorite,
   handleWatchHistory, handleClearHistory,
+  handleFavoritePagination, handleHistoryPagination,
 } from '../controllers/profile.controller'
 import {
   handlePremiumInfo, handlePremiumBuy, handlePremiumConfirm,
@@ -48,7 +49,7 @@ import {
 import {
   handleAdminPanel, handleAdminDashboard,
   handleAdminMovies, handleAdminMovieList, handleAdminAddMovie, handleAdminDeleteMovie, handleAdminEditMovie,
-  handleAdminSeries, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
+  handleAdminSeries, handleAdminSeriesList, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
   handleAdminCategories, handleAdminAddCategory, handleAdminDeleteCategory,
   handleAdminChannels, handleAdminAddChannel, handleAdminDeleteChannel,
   handleAdminUsers, handleAdminUsersList, handleAdminBanUser, handleAdminUnbanUser,
@@ -72,8 +73,9 @@ import {
 import {
   handleStats, handleDetailedStats,
   handleTopMovies, handleTopSeries,
-  handleRecommendations,
+  handleRecommendations, handleTrending, handleTrendingPeriod,
 } from '../controllers/stats.controller'
+
 
 const bot = new Telegraf(config.bot.token)
 
@@ -200,6 +202,8 @@ bot.action('profile', handleProfile)
 bot.action('favorites', handleFavorites)
 bot.action(/^fav_add:(.+):(.+)$/, handleAddFavorite)
 bot.action(/^fav_remove:(.+)$/, handleRemoveFavorite)
+bot.action(/^fav_page_(\d+)$/, handleFavoritePagination)
+bot.action(/^history_page_(\d+)$/, handleHistoryPagination)
 bot.action('history', handleWatchHistory)
 bot.action('clear_history', handleClearHistory)
 
@@ -225,6 +229,7 @@ bot.action('admin_edit_movie', handleAdminEditMovie)
 bot.action(/^admin_movie_edit_select:(.+)$/, handleAdminEditMovieSelect)
 bot.action(/^admin_edit_movie_field:(.+):(.+)$/, handleAdminEditMovieField)
 bot.action('admin_series', handleAdminSeries)
+bot.action('admin_series_list', handleAdminSeriesList)
 bot.action('admin_add_series', handleAdminAddSeries)
 bot.action(/^admin_add_season:(.+)$/, handleAdminAddSeason)
 bot.action(/^admin_add_episode:(.+)$/, handleAdminAddEpisode)
@@ -281,6 +286,39 @@ bot.action('stats', handleStats)
 bot.action('detailed_stats', handleDetailedStats)
 bot.action('top_movies', handleTopMovies)
 bot.action('top_series', handleTopSeries)
+bot.action('trending', handleTrending)
+bot.action(/^trending_(\d+)d$/, handleTrendingPeriod)
+
+// ─── ReplyKeyboard hears handlers ─────────────────────────
+
+bot.hears('🎬 Kinolar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleMovieList(ctx)
+})
+bot.hears('🎞 Seriallar', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleSeriesList(ctx)
+})
+bot.hears('🔍 Qidirish', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleSearch(ctx)
+})
+bot.hears('👤 Profil', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleProfile(ctx)
+})
+bot.hears('💎 Premium', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handlePremiumInfo(ctx)
+})
+bot.hears('🛡 Admin', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminPanel(ctx)
+})
+bot.hears('🏠 Bosh menyu', async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleMainMenu(ctx)
+})
 
 bot.action('check_subscription', async (ctx) => {
   await subscriptionMiddleware(ctx, async () => {

@@ -1,5 +1,5 @@
 import { BotContext } from '../types'
-import { mainMenuKeyboard } from '../keyboards/main'
+import { mainMenuReplyKeyboard } from '../keyboards/main'
 import { EMOJIS } from '../config/constants'
 
 export async function startCommand(ctx: BotContext) {
@@ -17,19 +17,19 @@ ${EMOJIS.heart} Sevimlilar va tarix
 ${EMOJIS.premium} Premium sotib olish
 
 Marhamat, kerakli bo'limni tanlang:`,
-    { reply_markup: mainMenuKeyboard().reply_markup }
+    { reply_markup: mainMenuReplyKeyboard().reply_markup }
   )
 }
 
 export async function handleMainMenu(ctx: BotContext) {
   try {
-    await ctx.editMessageText('🏠 *Bosh menyu:*', {
+    await ctx.reply('🏠 *Bosh menyu:*', {
       parse_mode: 'Markdown',
-      reply_markup: mainMenuKeyboard().reply_markup,
+      reply_markup: mainMenuReplyKeyboard().reply_markup,
     })
   } catch {
     await ctx.reply('🏠 Bosh menyu:', {
-      reply_markup: mainMenuKeyboard().reply_markup,
+      reply_markup: mainMenuReplyKeyboard().reply_markup,
     })
   }
 }

@@ -47,8 +47,19 @@ export function adminMoviesKeyboard() {
 export function adminSeriesKeyboard() {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`🎞 Serial qo'shish`, 'admin_add_series')],
-    [Markup.button.callback(`📋 Seriallar ro'yxati`, 'admin_series')],
+    [Markup.button.callback(`📋 Seriallar ro'yxati`, 'admin_series_list')],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_dashboard')],
+  ])
+}
+
+export function adminSeriesListKeyboard(page: number, totalPages: number) {
+  const navButtons: ReturnType<typeof Markup.button.callback>[] = []
+  if (page > 1) navButtons.push(Markup.button.callback(`${EMOJIS.prev} Oldingi`, `admin_series_list_page_${page - 1}`))
+  navButtons.push(Markup.button.callback(`${page}/${totalPages}`, 'page_info'))
+  if (page < totalPages) navButtons.push(Markup.button.callback(`${EMOJIS.next} Keyingi`, `admin_series_list_page_${page + 1}`))
+  return Markup.inlineKeyboard([
+    navButtons,
+    [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_series')],
   ])
 }
 

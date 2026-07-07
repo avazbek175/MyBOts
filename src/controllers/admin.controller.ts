@@ -15,6 +15,7 @@ import {
   adminDashboardKeyboard,
   adminMoviesKeyboard,
   adminSeriesKeyboard,
+  adminSeriesListKeyboard,
   adminCategoriesKeyboard,
   adminChannelsKeyboard,
   adminPremiumKeyboard,
@@ -520,6 +521,32 @@ export async function handleAdminSeries(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminSeries error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSeriesList(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const page = 1
+    const { seriesList, total, totalPages } = await SeriesService.getAll(page, PAGINATION.pageSize)
+
+    if (seriesList.length === 0) {
+      await ctx.editMessageText(`${EMOJIS.series} Seriallar mavjud emas.`)
+      return
+    }
+
+    const lines = seriesList.map((s, i) =>
+      `${i + 1}. ${EMOJIS.series} ${s.seriesName} | <code>${s.seriesCode}</code> | ${s.totalSeasons || 0} fasl`
+    )
+
+    const text = `${EMOJIS.series} <b>Barcha seriallar (${total} ta)</b>\n\n${lines.join('\n')}`
+    await ctx.editMessageText(text, {
+      parse_mode: 'HTML',
+      reply_markup: adminSeriesListKeyboard(page, totalPages).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleAdminSeriesList error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
   }
 }
@@ -2119,6 +2146,23 @@ export async function handleAdminPagination(ctx: BotContext) {
       await ctx.editMessageText(`${EMOJIS.users} <b>Foydalanuvchilar (${total} ta)</b>\n\n${lines.join('\n')}`, {
         parse_mode: 'HTML',
         reply_markup: adminUsersListKeyboard(page, totalPages).reply_markup,
+      })
+    } else if (data.startsWith('admin_series_list_page_')) {
+      const page = parseInt(data.replace('admin_series_list_page_', ''), 10)
+      if (isNaN(page) || page < 1) return
+
+      const { seriesList, total, totalPages } = await SeriesService.getAll(page, PAGINATION.pageSize)
+      if (seriesList.length === 0) {
+        await ctx.editMessageText(`${EMOJIS.series} Bu sahifada seriallar mavjud emas.`)
+        return
+      }
+
+      const lines = seriesList.map((s, i) =>
+        `${i + 1 + (page - 1) * PAGINATION.pageSize}. ${EMOJIS.series} ${s.seriesName} | <code>${s.seriesCode}</code>`
+      )
+      await ctx.editMessageText(`${EMOJIS.series} <b>Barcha seriallar (${total} ta)</b>\n\n${lines.join('\n')}`, {
+        parse_mode: 'HTML',
+        reply_markup: adminSeriesListKeyboard(page, totalPages).reply_markup,
       })
     }
   } catch (error) {

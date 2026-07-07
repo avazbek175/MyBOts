@@ -86,8 +86,8 @@ export function formatStats(stats: any): string {
     `👥 Foydalanuvchilar: <b>${formatNumber(stats.totalUsers || 0)}</b>`,
     `🎬 Kinolar: <b>${formatNumber(stats.totalMovies || 0)}</b>`,
     `🎞 Seriallar: <b>${formatNumber(stats.totalSeries || 0)}</b>`,
-    `💎 Premium: <b>${formatNumber(stats.totalPremium || 0)}</b>`,
-    `⭐ To'lovlar: <b>${formatNumber(stats.totalPayments || 0)}</b>`,
+    `💎 Premium: <b>${formatNumber(stats.premiumUsers || 0)}</b>`,
+    `⭐ Daromad: <b>${formatNumber(stats.totalRevenue || 0)}</b>`,
     `👁 Ko'rishlar: <b>${formatNumber(stats.totalViews || 0)}</b>`,
   ].join('\n')
 }

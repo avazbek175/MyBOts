@@ -9,12 +9,17 @@ import { logger } from '../utils/logger'
 export async function handleSearch(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
+    const { Markup } = require('telegraf')
     const text = `${EMOJIS.search} <b>Qidirish</b>\n\nKino yoki serialni qidirish usulini tanlang:`
     await ctx.editMessageText(text, {
       parse_mode: 'HTML',
-      reply_markup: (
-        await import('../keyboards/main')
-      ).backButton('main_menu').reply_markup,
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback(`${EMOJIS.search} Kod bo'yicha`, 'search_code')],
+        [Markup.button.callback(`${EMOJIS.search} Nom bo'yicha`, 'search_name')],
+        [Markup.button.callback(`${EMOJIS.category} Janr bo'yicha`, 'search_genre')],
+        [Markup.button.callback(`${EMOJIS.year} Yil bo'yicha`, 'search_year')],
+        [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'back')],
+      ]).reply_markup,
     })
   } catch (error) {
     logger.error(error, 'handleSearch error')

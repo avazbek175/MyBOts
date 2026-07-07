@@ -146,6 +146,72 @@ export async function handleWatchHistory(ctx: BotContext) {
   }
 }
 
+export async function handleFavoritePagination(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const page = parseInt(match?.[1] || '1', 10)
+    if (isNaN(page) || page < 1) return
+
+    const userId = ctx.from?.id
+    if (!userId) return
+
+    const { favorites, total, totalPages } = await FavoriteService.getAll(userId, page, PAGINATION.pageSize)
+
+    if (favorites.length === 0) {
+      await ctx.editMessageText(`${EMOJIS.heart} Bu sahifada sevimlilar mavjud emas.`)
+      return
+    }
+
+    const lines = favorites.map((fav, i) => {
+      const name = fav.content?.movieName || fav.content?.seriesName || 'Noma\'lum'
+      return `${i + 1 + (page - 1) * PAGINATION.pageSize}. ${fav.contentType === 'movie' ? EMOJIS.movie : EMOJIS.series} ${name}`
+    })
+
+    const text = `${EMOJIS.heart} <b>Sevimlilar (${total} ta):</b>\n\n${lines.join('\n')}`
+    await ctx.editMessageText(text, {
+      parse_mode: 'HTML',
+      reply_markup: favoritesListKeyboard(favorites, page, totalPages).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleFavoritePagination error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleHistoryPagination(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const match = ctx.match as RegExpExecArray
+    const page = parseInt(match?.[1] || '1', 10)
+    if (isNaN(page) || page < 1) return
+
+    const userId = ctx.from?.id
+    if (!userId) return
+
+    const { history, total, totalPages } = await WatchHistoryService.getAll(userId, page, PAGINATION.pageSize)
+
+    if (history.length === 0) {
+      await ctx.editMessageText(`${EMOJIS.history} Bu sahifada tarix mavjud emas.`)
+      return
+    }
+
+    const lines = history.map((h, i) => {
+      const date = new Date(h.watchedAt).toLocaleDateString('uz-UZ')
+      return `${i + 1 + (page - 1) * PAGINATION.pageSize}. ${h.contentType === 'movie' ? EMOJIS.movie : EMOJIS.series} ${date}`
+    })
+
+    const text = `${EMOJIS.history} <b>Tomosha tarixi (${total} ta):</b>\n\n${lines.join('\n')}`
+    await ctx.editMessageText(text, {
+      parse_mode: 'HTML',
+      reply_markup: historyListKeyboard(page, totalPages).reply_markup,
+    })
+  } catch (error) {
+    logger.error(error, 'handleHistoryPagination error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
 export async function handleClearHistory(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()

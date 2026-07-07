@@ -10,6 +10,14 @@ export function mainMenuKeyboard() {
   ])
 }
 
+export function mainMenuReplyKeyboard() {
+  return Markup.keyboard([
+    ['🎬 Kinolar', '🎞 Seriallar'],
+    ['🔍 Qidirish', '👤 Profil'],
+    ['💎 Premium', '🛡 Admin'],
+  ]).resize()
+}
+
 export function backButton(action: string = 'main_menu') {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, action)],
