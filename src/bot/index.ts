@@ -59,6 +59,7 @@ import {
   handleAdminModerators, handleAdminAddAdmin, handleAdminRemoveAdmin, handleAdminPermissions,
   handleAdminSettings, handleAdminSettingsStatus, handleAdminSettingsMaintenance,
   handleAdminSettingsPageSize, handleAdminSettingsPageSizeProcess,
+  handleAdminSettingsChannelLink, handleAdminSettingsChannelLinkProcess,
   handleAdminLogs, handleAdminLogsView, handleAdminPagination,
   handleAdminAddChannelProcess, handleAdminAddMovieProcess, handleAdminAddMovieVideo, handleAdminAddMovieCodeSelect,
   handleAdminAddSeriesProcess, handleAdminAddSeasonProcess, handleAdminAddEpisodeProcess,
@@ -258,6 +259,7 @@ bot.action('admin_settings', handleAdminSettings)
 bot.action('admin_settings_status', handleAdminSettingsStatus)
 bot.action('admin_settings_maintenance', handleAdminSettingsMaintenance)
 bot.action('admin_settings_pagesize', handleAdminSettingsPageSize)
+bot.action('admin_settings_channel_link', handleAdminSettingsChannelLink)
 bot.action('admin_logs', handleAdminLogs)
 bot.action(/^admin_logs_(admin|users|payments|errors)$/, handleAdminLogsView)
 bot.action(/^admin_page:([a-z_]+):(\d+)$/, handleAdminPagination)
@@ -349,6 +351,8 @@ bot.on('text', async (ctx) => {
       await handleAdminEditMovieProcess(ctx)
     } else if (step === 'admin_settings_pagesize') {
       await handleAdminSettingsPageSizeProcess(ctx)
+    } else if (step === 'admin_settings_channel_link') {
+      await handleAdminSettingsChannelLinkProcess(ctx)
     } else if (step.startsWith('admin_')) {
       await ctx.reply('❌ Noma\'lum admin qadam.')
     }

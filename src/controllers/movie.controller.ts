@@ -2,6 +2,7 @@ import { BotContext } from '../types'
 import { MovieService } from '../services/movie.service'
 import { WatchHistoryService } from '../services/watchHistory.service'
 import { FavoriteService } from '../services/favorite.service'
+import { SettingService } from '../services/setting.service'
 import {
   movieDetailKeyboard,
   movieListKeyboard,
@@ -16,21 +17,15 @@ import { CategoryService } from '../services/category.service'
 export async function handleMovieList(ctx: BotContext) {
   try {
     await ctx.answerCbQuery?.()
-    const page = 1
-    const { movies, total, totalPages } = await MovieService.getAll(page, PAGINATION.pageSize)
-
-    if (movies.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.movie} Hozircha kinolar mavjud emas.`, {
-        reply_markup: { inline_keyboard: [[{ text: `${EMOJIS.back} Orqaga`, callback_data: 'back' }]] },
-      })
-      return
+    const link = await SettingService.getMoviesChannelLink()
+    if (link) {
+      await ctx.reply(
+        `${EMOJIS.movie} <b>Kinolar</b>\n\nBarcha kinolar va ularning kodlari quyidagi kanalda:\n\n${link}\n\nKanalga a'zo bo'lib, kino kodini nusxalab, shu yerga yozing — darhol video keladi!`,
+        { parse_mode: 'HTML', link_preview_options: { is_disabled: true } }
+      )
+    } else {
+      await ctx.reply(`${EMOJIS.movie} Kinolar kanali hozircha sozlanmagan. Admin bilan bog'lanib, kanal qo'shishni so'rang: @${require('../config').config.owner.usernames[0] || 'admin'}`)
     }
-
-    const text = `${EMOJIS.movie} <b>Kinolar ro'yxati</b> (${total} ta):\n\n`
-    await ctx.editMessageText(text, {
-      parse_mode: 'HTML',
-      reply_markup: movieListKeyboard(movies, page, totalPages).reply_markup,
-    })
   } catch (error) {
     logger.error(error, 'handleMovieList error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)

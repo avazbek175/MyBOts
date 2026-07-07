@@ -14,7 +14,7 @@ export async function handleProfile(ctx: BotContext) {
 
     const user = await UserService.getById(userId)
     if (!user) {
-      await ctx.editMessageText(`${EMOJIS.error} Foydalanuvchi topilmadi.`)
+      await ctx.reply(`${EMOJIS.error} Foydalanuvchi topilmadi.`)
       return
     }
 
@@ -34,7 +34,7 @@ export async function handleProfile(ctx: BotContext) {
         : `${EMOJIS.star} Holat: <b>Bepul foydalanuvchi</b>`,
     ].join('\n')
 
-    await ctx.editMessageText(`${profileText}\n${statsText}`, {
+    await ctx.reply(`${profileText}\n${statsText}`, {
       parse_mode: 'HTML',
       reply_markup: profileKeyboard().reply_markup,
     })

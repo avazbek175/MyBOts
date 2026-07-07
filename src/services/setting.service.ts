@@ -39,4 +39,12 @@ export class SettingService {
   static async setPageSize(size: number): Promise<void> {
     await this.set('page_size', String(size), 'Default pagination page size')
   }
+
+  static async getMoviesChannelLink(): Promise<string | null> {
+    return this.get('movies_channel_link')
+  }
+
+  static async setMoviesChannelLink(link: string): Promise<void> {
+    await this.set('movies_channel_link', link, 'Channel link for movie codes')
+  }
 }

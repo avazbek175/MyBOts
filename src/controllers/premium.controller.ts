@@ -23,7 +23,7 @@ export async function handlePremiumInfo(ctx: BotContext) {
       'Marhamat, rejani tanlang:\n',
     ].join('')
 
-    await ctx.editMessageText(text, {
+    await ctx.reply(text, {
       parse_mode: 'HTML',
       reply_markup: premiumPlansKeyboard(PLANS).reply_markup,
     })

@@ -1939,15 +1939,17 @@ export async function handleAdminSettings(ctx: BotContext) {
     await ctx.answerCbQuery?.()
     const maintenance = await SettingService.isMaintenanceMode()
     const pageSize = await SettingService.getPageSize()
+    const channelLink = await SettingService.getMoviesChannelLink()
     const text = [
       `${EMOJIS.settings} <b>Sozlamalar</b>\n\n`,
       `Kerakli bo'limni tanlang:\n\n`,
       `🤖 Bot holati: <b>${maintenance ? '🔧 Xizmat rejimida' : '✅ Faol'}</b>\n`,
       `📄 Sahifa hajmi: <b>${pageSize} ta</b>\n`,
+      `📢 Kinolar kanali: <b>${channelLink ? '✅ Sozlangan' : '❌ Sozlanmagan'}</b>\n`,
     ].join('')
     await ctx.editMessageText(text, {
       parse_mode: 'HTML',
-      reply_markup: adminSettingsKeyboard(pageSize).reply_markup,
+      reply_markup: adminSettingsKeyboard(pageSize, channelLink || undefined).reply_markup,
     })
   } catch (error) {
     logger.error(error, 'handleAdminSettings error')
@@ -2047,6 +2049,57 @@ export async function handleAdminSettingsPageSizeProcess(ctx: BotContext) {
     await handleAdminSettings(ctx)
   } catch (error) {
     logger.error(error, 'handleAdminSettingsPageSizeProcess error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSettingsChannelLink(ctx: BotContext) {
+  try {
+    await ctx.answerCbQuery?.()
+    const currentLink = await SettingService.getMoviesChannelLink()
+    if (ctx.session) {
+      ctx.session.data = { step: 'admin_settings_channel_link' }
+    }
+    const { Markup } = require('telegraf')
+    await ctx.editMessageText(
+      `${EMOJIS.settings} <b>Kinolar kanali linki</b>\n\n` +
+      (currentLink
+        ? `Hozirgi link: <b>${currentLink}</b>\n\n`
+        : `Hozircha kanal sozlanmagan.\n\n`) +
+      `Yangi kanal linkini yuboring (masalan, <code>https://t.me/your_channel</code>):\n\n` +
+      `${EMOJIS.cross} Bekor qilish uchun /cancel`,
+      {
+        parse_mode: 'HTML',
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_settings')],
+        ]).reply_markup,
+      }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminSettingsChannelLink error')
+    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+  }
+}
+
+export async function handleAdminSettingsChannelLinkProcess(ctx: BotContext) {
+  try {
+    const text = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
+    if (!text) {
+      await ctx.reply(`${EMOJIS.error} Link kiritilmadi.`)
+      return
+    }
+    const linkPattern = /^https?:\/\/(t\.me|telegram\.me)\/\S+/i
+    if (!linkPattern.test(text) && !text.startsWith('@')) {
+      await ctx.reply(`${EMOJIS.error} Noto'g'ri link. Iltimos, Telegram kanal linkini yuboring (masalan: <code>https://t.me/your_channel</code> yoki <code>@username</code>).`, { parse_mode: 'HTML' })
+      return
+    }
+    await SettingService.setMoviesChannelLink(text)
+    await logAdminAction(ctx, 'settings_channel_link', text)
+    ctx.session!.data = { step: null }
+    await ctx.reply(`${EMOJIS.success} Kinolar kanali linki saqlandi!\n\nLink: ${text}`)
+    await handleAdminSettings(ctx)
+  } catch (error) {
+    logger.error(error, 'handleAdminSettingsChannelLinkProcess error')
     await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
   }
 }

@@ -107,11 +107,12 @@ export function adminModeratorsKeyboard() {
   ])
 }
 
-export function adminSettingsKeyboard(pageSize: number = 10) {
+export function adminSettingsKeyboard(pageSize: number = 10, _channelLink?: string) {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`🤖 Bot holati`, 'admin_settings_status')],
     [Markup.button.callback(`🔧 Xizmat rejimi`, 'admin_settings_maintenance')],
     [Markup.button.callback(`📄 Sahifa hajmi (${pageSize})`, 'admin_settings_pagesize')],
+    [Markup.button.callback(`📢 Kinolar kanali`, 'admin_settings_channel_link')],
     [Markup.button.callback(`${EMOJIS.back} Orqaga`, 'admin_dashboard')],
   ])
 }
