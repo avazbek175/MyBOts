@@ -4,7 +4,7 @@ import helmet from 'helmet'
 import { Telegraf } from 'telegraf'
 import mongoose from 'mongoose'
 import { config } from './config'
-import { getRedis, closeRedis } from './config/redis'
+import { initRedis, closeRedis } from './config/redis'
 import { logger } from './utils/logger'
 
 let bot: Telegraf | null = null
@@ -43,7 +43,7 @@ async function lazyInit(): Promise<void> {
   }
   try {
     await ensureDbConnection()
-    getRedis()
+    await initRedis()
     const { default: botInstance } = await import('./bot')
     bot = botInstance
     appInitialized = true

@@ -77,8 +77,12 @@ export class StatsService {
 
     try {
       const redis = getRedis()
-      const pong = await redis.ping()
-      redisStatus = pong === 'PONG' ? 'connected' : 'error'
+      if (!redis) {
+        redisStatus = 'not_configured'
+      } else {
+        const pong = await redis.ping()
+        redisStatus = pong === 'PONG' ? 'connected' : 'error'
+      }
     } catch {
       redisStatus = 'error'
     }
