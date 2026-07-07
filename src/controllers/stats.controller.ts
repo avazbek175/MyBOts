@@ -11,7 +11,7 @@ import { logger } from '../utils/logger'
 
 export async function handleStats(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const stats = await StatsService.getDashboardStats()
     const text = formatStats(stats)
 
@@ -27,7 +27,7 @@ export async function handleStats(ctx: BotContext) {
 
 export async function handleDetailedStats(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const stats = await StatsService.getDashboardStats()
     const health = await StatsService.getSystemHealth()
 
@@ -63,7 +63,7 @@ export async function handleDetailedStats(ctx: BotContext) {
 
 export async function handleTopMovies(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const movies = await MovieService.getMostViewed(10)
 
     if (movies.length === 0) {
@@ -90,7 +90,7 @@ export async function handleTopMovies(ctx: BotContext) {
 
 export async function handleTopSeries(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const seriesList = await SeriesService.getMostViewed(10)
 
     if (seriesList.length === 0) {
@@ -117,7 +117,7 @@ export async function handleTopSeries(ctx: BotContext) {
 
 export async function handleTrending(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const text = `${EMOJIS.trending} <b>Trenddagi kontent</b>\n\nDavrni tanlang:`
     await ctx.editMessageText(text, {
       parse_mode: 'HTML',
@@ -131,7 +131,7 @@ export async function handleTrending(ctx: BotContext) {
 
 export async function handleTrendingPeriod(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
 
     let days = 7
@@ -175,7 +175,7 @@ export async function handleTrendingPeriod(ctx: BotContext) {
 
 export async function handleRecommendations(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 

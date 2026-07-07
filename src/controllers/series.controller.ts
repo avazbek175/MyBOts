@@ -19,7 +19,7 @@ import { CategoryService } from '../services/category.service'
 
 export async function handleSeriesList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const page = 1
     const { seriesList, total, totalPages } = await SeriesService.getAll(page, PAGINATION.pageSize)
 
@@ -43,7 +43,7 @@ export async function handleSeriesList(ctx: BotContext) {
 
 export async function handleSeriesDetail(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const seriesCode = match?.[1] || ''
     const series = await SeriesService.getByCode(seriesCode)
@@ -82,7 +82,7 @@ export async function handleSeriesDetail(ctx: BotContext) {
 
 export async function handleSeasonList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const seriesCode = match?.[1] || ''
     const series = await SeriesService.getByCode(seriesCode)
@@ -115,7 +115,7 @@ export async function handleSeasonList(ctx: BotContext) {
 
 export async function handleEpisodeList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const raw = match?.[1] || ''
     const parts = raw.split('_')
@@ -160,7 +160,7 @@ export async function handleEpisodeList(ctx: BotContext) {
 
 export async function handleEpisodePlay(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const raw = match?.[1] || ''
     const parts = raw.split('_')
@@ -195,7 +195,7 @@ export async function handleEpisodePlay(ctx: BotContext) {
 
 export async function handleSeriesSearch(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.search} Qidirish turini tanlang:`, {
       reply_markup: seriesSearchKeyboard().reply_markup,
     })
@@ -207,7 +207,7 @@ export async function handleSeriesSearch(ctx: BotContext) {
 
 export async function handleSeriesSearchByCode(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'series_search_code' }
     }
@@ -223,7 +223,7 @@ export async function handleSeriesSearchByCode(ctx: BotContext) {
 
 export async function handleSeriesSearchByName(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'series_search_name' }
     }
@@ -239,7 +239,7 @@ export async function handleSeriesSearchByName(ctx: BotContext) {
 
 export async function handleSeriesSearchByGenreSelect(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const genreSlug = match?.[1] || ''
     const { seriesList, total } = await SeriesService.getAll(1, PAGINATION.pageSize, { genre: genreSlug })
@@ -284,7 +284,7 @@ export async function handleSeriesSearchResults(ctx: BotContext, query?: string)
 
 export async function handleSeriesSearchByGenre(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const categories = await CategoryService.getAll()
     await ctx.editMessageText(`${EMOJIS.category} Janrni tanlang:`, {
       reply_markup: categorySelectionKeyboard(categories, 'series_search_genre:').reply_markup,
@@ -297,7 +297,7 @@ export async function handleSeriesSearchByGenre(ctx: BotContext) {
 
 export async function handleSeriesSearchByYear(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'series_search_year' }
     }
@@ -313,7 +313,7 @@ export async function handleSeriesSearchByYear(ctx: BotContext) {
 
 export async function handleSeriesPagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const page = parseInt(match?.[1] || '1', 10)
     if (isNaN(page) || page < 1) return
@@ -338,7 +338,7 @@ export async function handleSeriesPagination(ctx: BotContext) {
 
 export async function handleSeriesSave(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const seriesCode = match?.[1] || ''
     const series = await SeriesService.getByCode(seriesCode)
@@ -355,13 +355,13 @@ export async function handleSeriesSave(ctx: BotContext) {
     await ctx.answerCbQuery?.(`${EMOJIS.heart} Sevimlilarga qo'shildi!`, { show_alert: false })
   } catch (error) {
     logger.error(error, 'handleSeriesSave error')
-    await ctx.answerCbQuery?.('Xatolik yuz berdi.', { show_alert: true })
+    await handleControllerError(ctx, error)
   }
 }
 
 export async function handleEpisodePagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const raw = match?.[1] || ''
     const parts = raw.split('_')

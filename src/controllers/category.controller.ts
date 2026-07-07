@@ -10,7 +10,7 @@ import { logger } from '../utils/logger'
 
 export async function handleCategoryList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const categories = await CategoryService.getAll()
 
     if (categories.length === 0) {
@@ -33,7 +33,7 @@ export async function handleCategoryList(ctx: BotContext) {
 
 export async function handleCategorySelect(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const categorySlug = match?.[1] || ''
     const category = await CategoryService.getBySlug(categorySlug)
@@ -76,7 +76,7 @@ export async function handleCategorySelect(ctx: BotContext) {
 
 export async function handleCategoryPagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const categorySlug = match?.[1] || ''
     const page = parseInt(match?.[2] || '1', 10)

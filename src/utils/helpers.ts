@@ -66,9 +66,11 @@ export async function handleControllerError(ctx: BotContext, error: unknown) {
   try {
     await ctx.reply(`${EMOJIS.error} <b>Xatolik:</b> ${escapeHtml(shortMsg)}`, { parse_mode: 'HTML' })
   } catch {}
-  try {
-    await ctx.answerCbQuery?.('Xatolik: ' + shortMsg.slice(0, 100), { show_alert: true })
-  } catch {}
+  if (ctx.callbackQuery) {
+    try {
+      await ctx.answerCbQuery('Xatolik: ' + shortMsg.slice(0, 100), { show_alert: true })
+    } catch {}
+  }
 }
 
 function escapeHtml(str: string): string {

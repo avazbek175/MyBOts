@@ -9,7 +9,7 @@ import { logger } from '../utils/logger'
 
 export async function handleProfile(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 
@@ -47,7 +47,7 @@ export async function handleProfile(ctx: BotContext) {
 
 export async function handleFavorites(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 
@@ -80,7 +80,7 @@ export async function handleFavorites(ctx: BotContext) {
 
 export async function handleAddFavorite(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const contentId = data.replace('fav_add:', '')
     const userId = ctx.from?.id
@@ -100,7 +100,7 @@ export async function handleAddFavorite(ctx: BotContext) {
 
 export async function handleRemoveFavorite(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const contentId = data.replace('fav_remove:', '')
     const userId = ctx.from?.id
@@ -116,7 +116,7 @@ export async function handleRemoveFavorite(ctx: BotContext) {
 
 export async function handleWatchHistory(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 
@@ -149,7 +149,7 @@ export async function handleWatchHistory(ctx: BotContext) {
 
 export async function handleFavoritePagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const page = parseInt(match?.[1] || '1', 10)
     if (isNaN(page) || page < 1) return
@@ -182,7 +182,7 @@ export async function handleFavoritePagination(ctx: BotContext) {
 
 export async function handleHistoryPagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const page = parseInt(match?.[1] || '1', 10)
     if (isNaN(page) || page < 1) return
@@ -215,7 +215,7 @@ export async function handleHistoryPagination(ctx: BotContext) {
 
 export async function handleClearHistory(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 

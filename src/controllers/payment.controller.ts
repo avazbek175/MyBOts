@@ -56,7 +56,7 @@ export async function handlePaymentSuccess(ctx: BotContext) {
 
 export async function handlePaymentFailed(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(
       `${EMOJIS.error} <b>To'lov amalga oshmadi</b>\n\n` +
       `To'lov jarayonida xatolik yuz berdi.\n` +
@@ -71,7 +71,7 @@ export async function handlePaymentFailed(ctx: BotContext) {
 
 export async function handlePaymentHistory(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 
@@ -114,7 +114,7 @@ export async function handlePaymentHistory(ctx: BotContext) {
 
 export async function handleInvoiceCallback(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
 
     if (data.startsWith('premium_select_')) {
@@ -137,7 +137,7 @@ export async function handleInvoiceCallback(ctx: BotContext) {
 
 export async function handlePaymentPagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 

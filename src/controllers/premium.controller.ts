@@ -12,7 +12,7 @@ const PLANS = [...PREMIUM_PLANS]
 
 export async function handlePremiumInfo(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const text = [
       `${EMOJIS.premium} <b>Premium rejalar</b>\n\n`,
       'Premium imkoniyatlari:\n',
@@ -36,7 +36,7 @@ export async function handlePremiumInfo(ctx: BotContext) {
 
 export async function handlePremiumBuy(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const planKey = match?.[1] || ''
     const plan = PLANS.find((p) => p.key === planKey)
@@ -65,7 +65,7 @@ export async function handlePremiumBuy(ctx: BotContext) {
 
 export async function handlePremiumConfirm(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const planKey = match?.[1] || ''
     const plan = PLANS.find((p) => p.key === planKey)
@@ -106,7 +106,7 @@ export async function handlePremiumConfirm(ctx: BotContext) {
 
 export async function handlePremiumStatus(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
 

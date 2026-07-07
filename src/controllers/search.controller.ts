@@ -9,7 +9,7 @@ import { logger } from '../utils/logger'
 
 export async function handleSearch(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const { Markup } = require('telegraf')
     const text = `${EMOJIS.search} <b>Qidirish</b>\n\nKino yoki serialni qidirish usulini tanlang:`
     await ctx.editMessageText(text, {
@@ -30,7 +30,7 @@ export async function handleSearch(ctx: BotContext) {
 
 export async function handleSearchByCode(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { searchMode: 'code' }
     }
@@ -43,7 +43,7 @@ export async function handleSearchByCode(ctx: BotContext) {
 
 export async function handleSearchByName(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { searchMode: 'name' }
     }
@@ -56,7 +56,7 @@ export async function handleSearchByName(ctx: BotContext) {
 
 export async function handleSearchByGenre(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const categories = await CategoryService.getAll()
     if (ctx.session) {
       ctx.session.data = { step: 'search_genre_selection' }
@@ -72,7 +72,7 @@ export async function handleSearchByGenre(ctx: BotContext) {
 
 export async function handleSearchByYear(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { searchMode: 'year' }
     }
@@ -85,7 +85,7 @@ export async function handleSearchByYear(ctx: BotContext) {
 
 export async function handleSearchByGenreSelect(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const genreSlug = match?.[1] || ''
     const category = await CategoryService.getBySlug(genreSlug)
@@ -138,7 +138,7 @@ export async function handleSearchResults(ctx: BotContext, query?: string, page:
 
 export async function handleSearchPagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const parts = data.replace('search_page_', '').split('_')
     const page = parseInt(parts[parts.length - 1], 10)

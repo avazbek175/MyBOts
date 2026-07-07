@@ -17,7 +17,7 @@ import { CategoryService } from '../services/category.service'
 
 export async function handleMovieList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const link = await SettingService.getMoviesChannelLink()
     if (link) {
       await ctx.reply(
@@ -35,7 +35,7 @@ export async function handleMovieList(ctx: BotContext) {
 
 export async function handleMovieDetail(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
@@ -74,7 +74,7 @@ export async function handleMovieDetail(ctx: BotContext) {
 
 export async function handleMovieSearch(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.search} Qidirish turini tanlang:`, {
       reply_markup: movieSearchKeyboard().reply_markup,
     })
@@ -86,7 +86,7 @@ export async function handleMovieSearch(ctx: BotContext) {
 
 export async function handleMovieSearchByCode(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'movie_search_code' }
     }
@@ -102,7 +102,7 @@ export async function handleMovieSearchByCode(ctx: BotContext) {
 
 export async function handleMovieSearchByName(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'movie_search_name' }
     }
@@ -118,7 +118,7 @@ export async function handleMovieSearchByName(ctx: BotContext) {
 
 export async function handleMovieSearchResults(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const genreSlug = match?.[1] || ''
     const { movies, total } = await MovieService.getAll(1, PAGINATION.pageSize, { genre: genreSlug })
@@ -140,7 +140,7 @@ export async function handleMovieSearchResults(ctx: BotContext) {
 
 export async function handleMovieSearchByGenre(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const categories = await CategoryService.getAll()
     await ctx.editMessageText(`${EMOJIS.category} Janrni tanlang:`, {
       reply_markup: categorySelectionKeyboard(categories, 'movie_search_genre:').reply_markup,
@@ -153,7 +153,7 @@ export async function handleMovieSearchByGenre(ctx: BotContext) {
 
 export async function handleMovieSearchByYear(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'movie_search_year' }
     }
@@ -169,7 +169,7 @@ export async function handleMovieSearchByYear(ctx: BotContext) {
 
 export async function handleMoviePlay(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
@@ -200,7 +200,7 @@ export async function handleMoviePlay(ctx: BotContext) {
 
 export async function handleMovieDownload(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)
@@ -223,7 +223,7 @@ export async function handleMovieDownload(ctx: BotContext) {
 
 export async function handleMoviePagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const page = parseInt(match?.[1] || '1', 10)
     if (isNaN(page) || page < 1) return
@@ -248,7 +248,7 @@ export async function handleMoviePagination(ctx: BotContext) {
 
 export async function handleMovieSave(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const movieCode = match?.[1] || ''
     const movie = await MovieService.getByCode(movieCode)

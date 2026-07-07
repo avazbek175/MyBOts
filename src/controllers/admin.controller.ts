@@ -94,7 +94,7 @@ export async function handleAdminPanel(ctx: BotContext) {
 
 export async function handleAdminDashboard(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const stats = await StatsService.getDashboardStats()
     const text = formatStats(stats)
 
@@ -112,7 +112,7 @@ export async function handleAdminDashboard(ctx: BotContext) {
 
 export async function handleAdminMovies(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.movie} <b>Kino boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: adminMoviesKeyboard().reply_markup,
@@ -125,7 +125,7 @@ export async function handleAdminMovies(ctx: BotContext) {
 
 export async function handleAdminAddMovie(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_add_movie_code',
@@ -160,7 +160,7 @@ export async function handleAdminAddMovie(ctx: BotContext) {
 
 export async function handleAdminAddMovieCodeSelect(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const code = match?.[1] || ''
     if (!code) return
@@ -267,7 +267,7 @@ export async function handleAdminAddMovieVideo(ctx: BotContext) {
 
 export async function handleAdminDeleteMovie(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const { movies } = await MovieService.getAll(1, 10)
 
     if (movies.length === 0) {
@@ -293,7 +293,7 @@ export async function handleAdminDeleteMovie(ctx: BotContext) {
 
 export async function handleAdminDeleteMovieConfirm(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const movieCode = data.replace('admin_movie_delete_confirm_', '')
 
@@ -315,7 +315,7 @@ export async function handleAdminDeleteMovieConfirm(ctx: BotContext) {
 
 export async function handleAdminEditMovie(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const { movies } = await MovieService.getAll(1, 10)
 
     if (movies.length === 0) {
@@ -341,7 +341,7 @@ export async function handleAdminEditMovie(ctx: BotContext) {
 
 export async function handleAdminEditMovieSelect(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const movieCode = match[1]!
     const movie = await MovieService.getByCode(movieCode)
@@ -382,7 +382,7 @@ export async function handleAdminEditMovieSelect(ctx: BotContext) {
 
 export async function handleAdminEditMovieField(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const movieCode = match[1]!
     const field = match[2] as string
@@ -487,7 +487,7 @@ export async function handleAdminEditMovieProcess(ctx: BotContext) {
 
 export async function handleAdminMovieList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const page = 1
     const { movies, total, totalPages } = await MovieService.getAll(page, PAGINATION.pageSize)
 
@@ -515,7 +515,7 @@ export async function handleAdminMovieList(ctx: BotContext) {
 
 export async function handleAdminSeries(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.series} <b>Serial boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: adminSeriesKeyboard().reply_markup,
@@ -528,7 +528,7 @@ export async function handleAdminSeries(ctx: BotContext) {
 
 export async function handleAdminSeriesList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const page = 1
     const { seriesList, total, totalPages } = await SeriesService.getAll(page, PAGINATION.pageSize)
 
@@ -554,7 +554,7 @@ export async function handleAdminSeriesList(ctx: BotContext) {
 
 export async function handleAdminAddSeries(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_add_series_code',
@@ -674,7 +674,7 @@ export async function handleAdminAddSeriesProcess(ctx: BotContext) {
 
 export async function handleAdminAddSeason(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_add_season_series_code',
@@ -752,7 +752,7 @@ export async function handleAdminAddSeasonProcess(ctx: BotContext) {
 
 export async function handleAdminAddEpisode(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_add_episode_series_code',
@@ -871,7 +871,7 @@ export async function handleAdminAddEpisodeVideo(ctx: BotContext) {
 
 export async function handleAdminCategories(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.category} <b>Kategoriya boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: adminCategoriesKeyboard().reply_markup,
@@ -884,7 +884,7 @@ export async function handleAdminCategories(ctx: BotContext) {
 
 export async function handleAdminAddCategory(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_add_category_name',
@@ -951,7 +951,7 @@ export async function handleAdminAddCategoryProcess(ctx: BotContext) {
 
 export async function handleAdminDeleteCategory(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const categories = await CategoryService.getAll()
 
     if (categories.length === 0) {
@@ -977,7 +977,7 @@ export async function handleAdminDeleteCategory(ctx: BotContext) {
 
 export async function handleAdminDeleteCategoryConfirm(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const slug = data.replace('admin_category_delete_confirm_', '')
 
@@ -1002,7 +1002,7 @@ export async function handleAdminDeleteCategoryConfirm(ctx: BotContext) {
 
 export async function handleAdminChannels(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.channel} <b>Kanal boshqaruvi</b>\n\nKerakli amalni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: adminChannelsKeyboard().reply_markup,
@@ -1015,7 +1015,7 @@ export async function handleAdminChannels(ctx: BotContext) {
 
 export async function handleAdminAddChannel(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_add_channel_username',
@@ -1091,7 +1091,7 @@ export async function handleAdminAddChannelProcess(ctx: BotContext) {
 
 export async function handleAdminDeleteChannel(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const channels = await ChannelService.getAll()
 
     if (channels.length === 0) {
@@ -1117,7 +1117,7 @@ export async function handleAdminDeleteChannel(ctx: BotContext) {
 
 export async function handleAdminDeleteChannelConfirm(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const channelId = data.replace('admin_channel_delete_confirm_', '')
 
@@ -1141,7 +1141,7 @@ export async function handleAdminDeleteChannelConfirm(ctx: BotContext) {
 
 export async function handleAdminUsers(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const { users, total } = await UserService.getAll(1, PAGINATION.pageSize)
     const activeCount = await UserService.getActiveCount()
     const bannedCount = users.filter((u) => u.isBanned).length
@@ -1166,7 +1166,7 @@ export async function handleAdminUsers(ctx: BotContext) {
 
 export async function handleAdminUsersList(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const { users, total, totalPages } = await UserService.getAll(1, PAGINATION.pageSize)
     if (users.length === 0) {
       await ctx.editMessageText(`${EMOJIS.users} Foydalanuvchilar mavjud emas.`)
@@ -1239,7 +1239,7 @@ export async function handleAdminSearchUser(ctx: BotContext) {
 
 export async function handleAdminBanUser(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const telegramId = parseInt(data.replace('admin_user_ban_', ''), 10)
     if (isNaN(telegramId)) return
@@ -1281,7 +1281,7 @@ export async function handleAdminBanUserProcess(ctx: BotContext) {
 
 export async function handleAdminUnbanUser(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const telegramId = parseInt(data.replace('admin_user_unban_', ''), 10)
     if (isNaN(telegramId)) return
@@ -1304,7 +1304,7 @@ export async function handleAdminUnbanUser(ctx: BotContext) {
 
 export async function handleAdminPremium(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const premiumCount = await UserService.getPremiumCount()
 
     const text = [
@@ -1325,7 +1325,7 @@ export async function handleAdminPremium(ctx: BotContext) {
 
 export async function handleAdminGrantPremium(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = {
         step: 'admin_grant_premium_user',
@@ -1392,7 +1392,7 @@ export async function handleAdminGrantPremiumProcess(ctx: BotContext) {
 
 export async function handleAdminGrantPremiumSelect(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const parts = data.replace('admin_grant_plan_', '').split('_')
     const planKey = `premium_${parts[0]}`
@@ -1410,7 +1410,7 @@ export async function handleAdminGrantPremiumSelect(ctx: BotContext) {
 
 export async function handleAdminPremiumPrices(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const lines = PREMIUM_PLANS.map((p) => `${p.label} - ${p.stars}⭐ | ${p.unit === 'lifetime' ? 'Butun umr' : `${p.duration} kun`}`)
     const text = [
       `${EMOJIS.premium} <b>Premium narxlar</b>\n\n`,
@@ -1432,7 +1432,7 @@ export async function handleAdminPremiumPrices(ctx: BotContext) {
 
 export async function handleAdminPayments(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const revenue = await PaymentService.getTotalRevenue()
 
     const text = [
@@ -1453,7 +1453,7 @@ export async function handleAdminPayments(ctx: BotContext) {
 
 export async function handleAdminPaymentsAll(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const { payments, total, totalPages } = await PaymentService.getAllPayments(1, PAGINATION.pageSize)
 
     if (payments.length === 0) {
@@ -1477,7 +1477,7 @@ export async function handleAdminPaymentsAll(ctx: BotContext) {
 
 export async function handleAdminRefund(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'admin_refund_invoice' }
     }
@@ -1519,7 +1519,7 @@ export async function handleAdminRefundProcess(ctx: BotContext) {
 
 export async function handleAdminBroadcast(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const text = `${EMOJIS.broadcast} <b>Broadcast boshqaruvi</b>\n\nBarcha foydalanuvchilarga xabar yuborish.\nEhtiyot bo'ling!`
     await ctx.editMessageText(text, {
       parse_mode: 'HTML',
@@ -1533,7 +1533,7 @@ export async function handleAdminBroadcast(ctx: BotContext) {
 
 export async function handleAdminSendBroadcast(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
 
     let broadcastType: 'text' | 'photo' | 'video' | 'audio' = 'text'
@@ -1620,7 +1620,7 @@ export async function handleAdminSendBroadcastProcess(ctx: BotContext) {
 
 export async function handleAdminBroadcastConfirm(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.session?.data
     if (!data || data.step !== 'admin_broadcast_preview') return
 
@@ -1653,7 +1653,7 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
 
 export async function handleAdminStats(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const stats = await StatsService.getDashboardStats()
     const health = await StatsService.getSystemHealth()
 
@@ -1691,7 +1691,7 @@ export async function handleAdminStats(ctx: BotContext) {
 
 export async function handleAdminModerators(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const admins = await Admin.find({ isActive: true }).lean()
 
     const text = [
@@ -1713,7 +1713,7 @@ export async function handleAdminModerators(ctx: BotContext) {
 
 export async function handleAdminAddAdmin(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'admin_add_admin_id' }
     }
@@ -1801,7 +1801,7 @@ export async function handleAdminAddAdminProcess(ctx: BotContext) {
 
 export async function handleAdminTogglePermission(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const permKey = data.replace('admin_toggle_perm_', '')
 
@@ -1835,7 +1835,7 @@ export async function handleAdminTogglePermission(ctx: BotContext) {
 
 export async function handleAdminSaveAdmin(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.session?.data
     if (!data || !data.adminId) return
 
@@ -1863,7 +1863,7 @@ export async function handleAdminSaveAdmin(ctx: BotContext) {
 
 export async function handleAdminRemoveAdmin(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const admins = await Admin.find({ isActive: true }).lean()
 
     if (admins.length === 0) {
@@ -1889,7 +1889,7 @@ export async function handleAdminRemoveAdmin(ctx: BotContext) {
 
 export async function handleAdminRemoveAdminConfirm(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
     const userId = parseInt(data.replace('admin_remove_admin_confirm_', ''), 10)
 
@@ -1909,7 +1909,7 @@ export async function handleAdminRemoveAdminConfirm(ctx: BotContext) {
 
 export async function handleAdminPermissions(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const admins = await Admin.find({ isActive: true }).lean()
 
     if (admins.length === 0) {
@@ -1937,7 +1937,7 @@ export async function handleAdminPermissions(ctx: BotContext) {
 
 export async function handleAdminSettings(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const maintenance = await SettingService.isMaintenanceMode()
     const pageSize = await SettingService.getPageSize()
     const channelLink = await SettingService.getMoviesChannelLink()
@@ -1960,7 +1960,7 @@ export async function handleAdminSettings(ctx: BotContext) {
 
 export async function handleAdminSettingsStatus(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const maintenance = await SettingService.isMaintenanceMode()
     const pageSize = await SettingService.getPageSize()
     const { default: Movie } = await import('../models/Movie')
@@ -1992,7 +1992,7 @@ export async function handleAdminSettingsStatus(ctx: BotContext) {
 
 export async function handleAdminSettingsMaintenance(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const newState = await SettingService.toggleMaintenanceMode()
     await logAdminAction(ctx, 'settings_toggle_maintenance', String(newState))
     await ctx.editMessageText(
@@ -2008,7 +2008,7 @@ export async function handleAdminSettingsMaintenance(ctx: BotContext) {
 
 export async function handleAdminSettingsPageSize(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     if (ctx.session) {
       ctx.session.data = { step: 'admin_settings_pagesize' }
     }
@@ -2056,7 +2056,7 @@ export async function handleAdminSettingsPageSizeProcess(ctx: BotContext) {
 
 export async function handleAdminSettingsChannelLink(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const currentLink = await SettingService.getMoviesChannelLink()
     if (ctx.session) {
       ctx.session.data = { step: 'admin_settings_channel_link' }
@@ -2109,7 +2109,7 @@ export async function handleAdminSettingsChannelLinkProcess(ctx: BotContext) {
 
 export async function handleAdminLogs(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     await ctx.editMessageText(`${EMOJIS.info} <b>Loglar</b>\n\nKerakli bo'limni tanlang:`, {
       parse_mode: 'HTML',
       reply_markup: adminLogsKeyboard().reply_markup,
@@ -2122,7 +2122,7 @@ export async function handleAdminLogs(ctx: BotContext) {
 
 export async function handleAdminLogsView(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const match = ctx.match as RegExpExecArray
     const filterType = match?.[1] || ''
     let filter: Record<string, unknown> = {}
@@ -2164,7 +2164,7 @@ export async function handleAdminLogsView(ctx: BotContext) {
 
 export async function handleAdminPagination(ctx: BotContext) {
   try {
-    await ctx.answerCbQuery?.()
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
     const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
 
     if (data.startsWith('admin_movie_list_page_')) {
