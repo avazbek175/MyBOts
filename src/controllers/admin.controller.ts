@@ -1127,10 +1127,7 @@ export async function handleAdminUsers(ctx: BotContext) {
       `Foydalanuvchi ID sini yuboring yoki pastdagi tugmalardan foydalaning:`,
     ].join('')
 
-    await ctx.reply(text, {
-      parse_mode: 'HTML',
-      reply_markup: adminUsersKeyboard().reply_markup,
-    })
+    await adminReply(ctx, text, adminUsersKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminUsers error')
     await handleControllerError(ctx, error)
