@@ -25,9 +25,9 @@ export class BroadcastService {
     return broadcast.toObject()
   }
 
-  static async sendToAllUsers(bot: Telegram, broadcastId: string): Promise<void> {
+  static async sendToAllUsers(bot: Telegram, broadcastId: string): Promise<{ sent: number; failed: number; blocked: number }> {
     const broadcast = await Broadcast.findById(broadcastId)
-    if (!broadcast || broadcast.status === 'cancelled') return
+    if (!broadcast || broadcast.status === 'cancelled') return { sent: 0, failed: 0, blocked: 0 }
 
     broadcast.status = 'sending'
     await broadcast.save()
@@ -92,6 +92,7 @@ export class BroadcastService {
     broadcast.status = (broadcast as any).status === 'cancelled' ? 'cancelled' : 'completed'
     await broadcast.save()
     logger.info(`Broadcast ${broadcastId} completed: sent=${sent}, failed=${failed}, blocked=${blocked}`)
+    return { sent, failed, blocked }
   }
 
   static async cancelBroadcast(broadcastId: string): Promise<IBroadcast | null> {

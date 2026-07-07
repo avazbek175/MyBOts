@@ -1571,22 +1571,40 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
     const data = ctx.session?.data
     if (!data || data.step !== 'admin_broadcast_preview') return
 
-    const bot = ctx.telegram as any
-    const broadcast = await BroadcastService.createBroadcast(
+    const bot = ctx.telegram
+    const broadcastId = String(((await BroadcastService.createBroadcast(
       data.broadcastType,
       data.broadcastData.content,
       data.broadcastData.mediaFileId,
       undefined,
       ctx.from?.id || 0
-    )
+    )) as any)._id)
 
-    await logAdminAction(ctx, 'broadcast_send', String((broadcast as any)._id), data.broadcastType)
+    await logAdminAction(ctx, 'broadcast_send', broadcastId, data.broadcastType)
     await ctx.editMessageText(`${EMOJIS.broadcast} Broadcast yuborilmoqda... Bu biroz vaqt olishi mumkin.`)
+    const chatId = ctx.chat?.id
+    const cbMsg = ctx.callbackQuery && 'message' in ctx.callbackQuery ? ctx.callbackQuery.message as any : null
+    const messageId = cbMsg?.message_id
 
-    BroadcastService.sendToAllUsers(bot, String((broadcast as any)._id)).then(() => {
-      logger.info('Broadcast completed')
-    }).catch((err) => {
+    BroadcastService.sendToAllUsers(bot, broadcastId).then(async (result) => {
+      logger.info(`Broadcast ${broadcastId} completed: sent=${result.sent}, failed=${result.failed}, blocked=${result.blocked}`)
+      if (chatId && messageId) {
+        try {
+          await bot.editMessageText(
+            chatId, messageId, undefined,
+            `${EMOJIS.check} <b>Broadcast yakunlandi</b>\n\n✅ Yuborilgan: <b>${result.sent}</b>\n❌ Xatolik: <b>${result.failed}</b>\n🔇 Bloklangan: <b>${result.blocked}</b>`,
+            { parse_mode: 'HTML' }
+          )
+        } catch {}
+      }
+    }).catch(async (err) => {
       logger.error(err, 'Broadcast send error')
+      const ownerId = config.owner.ids[0]
+      if (ownerId) {
+        try {
+          await bot.sendMessage(ownerId, `⚠️ <b>Broadcast xatoligi</b>\n\nBroadcast ID: <code>${broadcastId}</code>\nXatolik: ${err.message || 'Noma\'lum'}`, { parse_mode: 'HTML' })
+        } catch {}
+      }
     })
 
     ctx.session.data = undefined
