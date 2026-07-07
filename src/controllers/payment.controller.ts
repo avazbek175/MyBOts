@@ -1,6 +1,7 @@
 import { BotContext } from '../types'
 import { PaymentService } from '../services/payment.service'
 import { SubscriptionService } from '../services/subscription.service'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PAGINATION } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -49,7 +50,7 @@ export async function handlePaymentSuccess(ctx: BotContext) {
     logger.info(`Payment success processed: userId=${userId}, plan=${plan}, paymentId=${paymentId}`)
   } catch (error) {
     logger.error(error, 'handlePaymentSuccess error')
-    await ctx.reply(`${EMOJIS.error} To'lovni qayta ishlashda xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -64,7 +65,7 @@ export async function handlePaymentFailed(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handlePaymentFailed error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -107,7 +108,7 @@ export async function handlePaymentHistory(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handlePaymentHistory error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -130,7 +131,7 @@ export async function handleInvoiceCallback(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleInvoiceCallback error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -164,7 +165,7 @@ export async function handlePaymentPagination(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handlePaymentPagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 

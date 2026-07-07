@@ -3,6 +3,7 @@ import { MovieService } from '../services/movie.service'
 import { CategoryService } from '../services/category.service'
 import { categorySelectionKeyboard } from '../keyboards/category'
 import { movieListKeyboard } from '../keyboards/movie'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PAGINATION } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -23,7 +24,7 @@ export async function handleSearch(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleSearch error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -36,7 +37,7 @@ export async function handleSearchByCode(ctx: BotContext) {
     await ctx.reply(`${EMOJIS.search} Kino yoki serial kodini kiriting:\n\nMisol: <code>AVATAR</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleSearchByCode error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -49,7 +50,7 @@ export async function handleSearchByName(ctx: BotContext) {
     await ctx.reply(`${EMOJIS.search} Kino yoki serial nomini kiriting:`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleSearchByName error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -65,7 +66,7 @@ export async function handleSearchByGenre(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleSearchByGenre error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -78,7 +79,7 @@ export async function handleSearchByYear(ctx: BotContext) {
     await ctx.reply(`${EMOJIS.search} Yilni kiriting:\n\nMisol: <code>2024</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleSearchByYear error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -104,7 +105,7 @@ export async function handleSearchByGenreSelect(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleSearchByGenreSelect error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -131,7 +132,7 @@ export async function handleSearchResults(ctx: BotContext, query?: string, page:
     })
   } catch (error) {
     logger.error(error, 'handleSearchResults error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -159,6 +160,6 @@ export async function handleSearchPagination(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleSearchPagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }

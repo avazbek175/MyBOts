@@ -4,6 +4,7 @@ import { SubscriptionService } from '../services/subscription.service'
 import { PaymentService } from '../services/payment.service'
 import { premiumPlansKeyboard, premiumConfirmKeyboard, premiumStatusKeyboard } from '../keyboards/premium'
 import { formatPremiumInfo } from '../utils/formatters'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PREMIUM_PLANS } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -29,7 +30,7 @@ export async function handlePremiumInfo(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handlePremiumInfo error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -58,7 +59,7 @@ export async function handlePremiumBuy(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handlePremiumBuy error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -139,7 +140,7 @@ export async function handlePremiumStatus(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handlePremiumStatus error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 

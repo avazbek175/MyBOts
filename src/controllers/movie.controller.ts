@@ -10,6 +10,7 @@ import {
 } from '../keyboards/movie'
 import { categorySelectionKeyboard } from '../keyboards/category'
 import { formatMovieInfo } from '../utils/formatters'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PAGINATION } from '../config/constants'
 import { logger } from '../utils/logger'
 import { CategoryService } from '../services/category.service'
@@ -28,7 +29,7 @@ export async function handleMovieList(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleMovieList error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -67,7 +68,7 @@ export async function handleMovieDetail(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleMovieDetail error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -79,7 +80,7 @@ export async function handleMovieSearch(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleMovieSearch error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -95,7 +96,7 @@ export async function handleMovieSearchByCode(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleMovieSearchByCode error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -111,7 +112,7 @@ export async function handleMovieSearchByName(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleMovieSearchByName error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -133,7 +134,7 @@ export async function handleMovieSearchResults(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleMovieSearchResults error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -146,7 +147,7 @@ export async function handleMovieSearchByGenre(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleMovieSearchByGenre error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -162,7 +163,7 @@ export async function handleMovieSearchByYear(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleMovieSearchByYear error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -241,7 +242,7 @@ export async function handleMoviePagination(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleMoviePagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -264,6 +265,6 @@ export async function handleMovieSave(ctx: BotContext) {
     await ctx.answerCbQuery?.(`${EMOJIS.heart} Sevimlilarga qo'shildi!`, { show_alert: false })
   } catch (error) {
     logger.error(error, 'handleMovieSave error')
-    await ctx.answerCbQuery?.('Xatolik yuz berdi.', { show_alert: true })
+    await handleControllerError(ctx, error)
   }
 }

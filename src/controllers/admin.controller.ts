@@ -26,6 +26,7 @@ import {
   adminLogsKeyboard,
 } from '../keyboards/admin'
 import { formatStats } from '../utils/formatters'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PAGINATION, PREMIUM_PLANS, ADMIN_PERMISSIONS } from '../config/constants'
 import { logger } from '../utils/logger'
 import { config } from '../config'
@@ -87,7 +88,7 @@ export async function handleAdminPanel(ctx: BotContext) {
     await adminReply(ctx, text, adminDashboardKeyboard())
   } catch (error) {
     logger.error(error, 'handleAdminPanel error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -103,7 +104,7 @@ export async function handleAdminDashboard(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminDashboard error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -118,7 +119,7 @@ export async function handleAdminMovies(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminMovies error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -153,7 +154,7 @@ export async function handleAdminAddMovie(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddMovie error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -179,7 +180,7 @@ export async function handleAdminAddMovieCodeSelect(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddMovieCodeSelect error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -221,7 +222,7 @@ export async function handleAdminAddMovieProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddMovieProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -286,7 +287,7 @@ export async function handleAdminDeleteMovie(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteMovie error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -308,7 +309,7 @@ export async function handleAdminDeleteMovieConfirm(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} <b>Kino o'chirildi:</b> ${movie.movieName} (${movieCode})`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteMovieConfirm error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -334,7 +335,7 @@ export async function handleAdminEditMovie(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminEditMovie error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -375,7 +376,7 @@ export async function handleAdminEditMovieSelect(ctx: BotContext) {
     await ctx.editMessageText(fields, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
   } catch (error) {
     logger.error(error, 'handleAdminEditMovieSelect error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -409,7 +410,7 @@ export async function handleAdminEditMovieField(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminEditMovieField error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -480,7 +481,7 @@ export async function handleAdminEditMovieProcess(ctx: BotContext) {
     await ctx.reply(fields, { parse_mode: 'HTML', reply_markup: keyboard.reply_markup })
   } catch (error) {
     logger.error(error, 'handleAdminEditMovieProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -506,7 +507,7 @@ export async function handleAdminMovieList(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminMovieList error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -521,7 +522,7 @@ export async function handleAdminSeries(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminSeries error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -547,7 +548,7 @@ export async function handleAdminSeriesList(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminSeriesList error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -569,7 +570,7 @@ export async function handleAdminAddSeries(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddSeries error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -667,7 +668,7 @@ export async function handleAdminAddSeriesProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddSeriesProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -688,7 +689,7 @@ export async function handleAdminAddSeason(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddSeason error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -745,7 +746,7 @@ export async function handleAdminAddSeasonProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddSeasonProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -766,7 +767,7 @@ export async function handleAdminAddEpisode(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddEpisode error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -836,7 +837,7 @@ export async function handleAdminAddEpisodeProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddEpisodeProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -862,7 +863,7 @@ export async function handleAdminAddEpisodeVideo(ctx: BotContext) {
     await ctx.reply(`${EMOJIS.success} <b>Qism qo'shildi!</b>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminAddEpisodeVideo error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -877,7 +878,7 @@ export async function handleAdminCategories(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminCategories error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -898,7 +899,7 @@ export async function handleAdminAddCategory(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddCategory error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -944,7 +945,7 @@ export async function handleAdminAddCategoryProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddCategoryProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -970,7 +971,7 @@ export async function handleAdminDeleteCategory(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteCategory error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -993,7 +994,7 @@ export async function handleAdminDeleteCategoryConfirm(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} Kategoriya o'chirildi: ${category.name}`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteCategoryConfirm error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1008,7 +1009,7 @@ export async function handleAdminChannels(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminChannels error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1029,7 +1030,7 @@ export async function handleAdminAddChannel(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddChannel error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1084,7 +1085,7 @@ export async function handleAdminAddChannelProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddChannelProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1110,7 +1111,7 @@ export async function handleAdminDeleteChannel(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteChannel error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1132,7 +1133,7 @@ export async function handleAdminDeleteChannelConfirm(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} Kanal o'chirildi: ${channel.channelName}`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteChannelConfirm error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1159,7 +1160,7 @@ export async function handleAdminUsers(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminUsers error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1181,7 +1182,7 @@ export async function handleAdminUsersList(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminUsersList error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1232,7 +1233,7 @@ export async function handleAdminSearchUser(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminSearchUser error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1249,7 +1250,7 @@ export async function handleAdminBanUser(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.lock} Bloklash sababini kiriting (yoki - sababsiz):`)
   } catch (error) {
     logger.error(error, 'handleAdminBanUser error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1274,7 +1275,7 @@ export async function handleAdminBanUserProcess(ctx: BotContext) {
     await ctx.reply(`${EMOJIS.success} Foydalanuvchi bloklandi: <code>${telegramId}</code>\nSabab: ${reason}`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminBanUserProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1295,7 +1296,7 @@ export async function handleAdminUnbanUser(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} Foydalanuvchi blokdan chiqarildi: <code>${telegramId}</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminUnbanUser error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1318,7 +1319,7 @@ export async function handleAdminPremium(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminPremium error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1339,7 +1340,7 @@ export async function handleAdminGrantPremium(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminGrantPremium error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1385,7 +1386,7 @@ export async function handleAdminGrantPremiumProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminGrantPremiumProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1403,7 +1404,7 @@ export async function handleAdminGrantPremiumSelect(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} <b>Premium berildi!</b>\n\nFoydalanuvchi: <code>${telegramId}</code>\nReja: ${planKey}`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminGrantPremiumSelect error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1423,7 +1424,7 @@ export async function handleAdminPremiumPrices(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminPremiumPrices error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1446,7 +1447,7 @@ export async function handleAdminPayments(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminPayments error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1470,7 +1471,7 @@ export async function handleAdminPaymentsAll(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminPaymentsAll error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1488,7 +1489,7 @@ export async function handleAdminRefund(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminRefund error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1510,7 +1511,7 @@ export async function handleAdminRefundProcess(ctx: BotContext) {
     await ctx.reply(`${EMOJIS.success} <b>To'lov qaytarildi!</b>\n\nInvoice: <code>${text}</code>\nFoydalanuvchi: <code>${payment.userId}</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminRefundProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1526,7 +1527,7 @@ export async function handleAdminBroadcast(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminBroadcast error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1561,7 +1562,7 @@ export async function handleAdminSendBroadcast(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminSendBroadcast error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1613,7 +1614,7 @@ export async function handleAdminSendBroadcastProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminSendBroadcastProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1644,7 +1645,7 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
     ctx.session.data = undefined
   } catch (error) {
     logger.error(error, 'handleAdminBroadcastConfirm error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1682,7 +1683,7 @@ export async function handleAdminStats(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminStats error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1706,7 +1707,7 @@ export async function handleAdminModerators(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminModerators error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1724,7 +1725,7 @@ export async function handleAdminAddAdmin(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminAddAdmin error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1794,7 +1795,7 @@ export async function handleAdminAddAdminProcess(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminAddAdminProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1828,7 +1829,7 @@ export async function handleAdminTogglePermission(ctx: BotContext) {
     await ctx.editMessageReplyMarkup({ inline_keyboard: rows })
   } catch (error) {
     logger.error(error, 'handleAdminTogglePermission error')
-    await ctx.answerCbQuery?.('Xatolik yuz berdi.', { show_alert: true })
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1856,7 +1857,7 @@ export async function handleAdminSaveAdmin(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} <b>Admin qo'shildi!</b>\n\nID: <code>${data.adminId}</code>\nRol: ${data.adminRole}`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminSaveAdmin error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1882,7 +1883,7 @@ export async function handleAdminRemoveAdmin(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminRemoveAdmin error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1902,7 +1903,7 @@ export async function handleAdminRemoveAdminConfirm(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} Admin o'chirildi: <code>${userId}</code>`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminRemoveAdminConfirm error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1928,7 +1929,7 @@ export async function handleAdminPermissions(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminPermissions error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1953,7 +1954,7 @@ export async function handleAdminSettings(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminSettings error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -1985,7 +1986,7 @@ export async function handleAdminSettingsStatus(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminSettingsStatus error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2001,7 +2002,7 @@ export async function handleAdminSettingsMaintenance(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminSettingsMaintenance error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2026,7 +2027,7 @@ export async function handleAdminSettingsPageSize(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminSettingsPageSize error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2049,7 +2050,7 @@ export async function handleAdminSettingsPageSizeProcess(ctx: BotContext) {
     await handleAdminSettings(ctx)
   } catch (error) {
     logger.error(error, 'handleAdminSettingsPageSizeProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2077,7 +2078,7 @@ export async function handleAdminSettingsChannelLink(ctx: BotContext) {
     )
   } catch (error) {
     logger.error(error, 'handleAdminSettingsChannelLink error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2100,7 +2101,7 @@ export async function handleAdminSettingsChannelLinkProcess(ctx: BotContext) {
     await handleAdminSettings(ctx)
   } catch (error) {
     logger.error(error, 'handleAdminSettingsChannelLinkProcess error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2115,7 +2116,7 @@ export async function handleAdminLogs(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminLogs error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2155,7 +2156,7 @@ export async function handleAdminLogsView(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleAdminLogsView error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -2220,7 +2221,7 @@ export async function handleAdminPagination(ctx: BotContext) {
     }
   } catch (error) {
     logger.error(error, 'handleAdminPagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 

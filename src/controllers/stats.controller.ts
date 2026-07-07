@@ -5,6 +5,7 @@ import { SeriesService } from '../services/series.service'
 import { RecommendationService } from '../services/recommendation.service'
 import { formatStats } from '../utils/formatters'
 import { formatNumber } from '../utils/helpers'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -20,7 +21,7 @@ export async function handleStats(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleStats error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -56,7 +57,7 @@ export async function handleDetailedStats(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleDetailedStats error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -83,7 +84,7 @@ export async function handleTopMovies(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleTopMovies error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -110,7 +111,7 @@ export async function handleTopSeries(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleTopSeries error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -124,7 +125,7 @@ export async function handleTrending(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleTrending error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -168,7 +169,7 @@ export async function handleTrendingPeriod(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleTrendingPeriod error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -202,7 +203,7 @@ export async function handleRecommendations(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleRecommendations error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 

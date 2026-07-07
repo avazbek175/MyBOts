@@ -4,6 +4,7 @@ import { MovieService } from '../services/movie.service'
 import { SeriesService } from '../services/series.service'
 import { categorySelectionKeyboard } from '../keyboards/category'
 import { movieListKeyboard } from '../keyboards/movie'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PAGINATION } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -26,7 +27,7 @@ export async function handleCategoryList(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleCategoryList error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -69,7 +70,7 @@ export async function handleCategorySelect(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleCategorySelect error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -99,6 +100,6 @@ export async function handleCategoryPagination(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleCategoryPagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }

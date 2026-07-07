@@ -3,6 +3,7 @@ import { UserService } from '../services/user.service'
 import { FavoriteService } from '../services/favorite.service'
 import { WatchHistoryService } from '../services/watchHistory.service'
 import { formatProfileInfo } from '../utils/formatters'
+import { handleControllerError } from '../utils/helpers'
 import { EMOJIS, PAGINATION } from '../config/constants'
 import { logger } from '../utils/logger'
 
@@ -40,7 +41,7 @@ export async function handleProfile(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleProfile error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -73,7 +74,7 @@ export async function handleFavorites(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleFavorites error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -93,7 +94,7 @@ export async function handleAddFavorite(ctx: BotContext) {
     await ctx.answerCbQuery?.(`${EMOJIS.heart} Sevimlilarga qo'shildi!`, { show_alert: false })
   } catch (error) {
     logger.error(error, 'handleAddFavorite error')
-    await ctx.answerCbQuery?.('Xatolik yuz berdi.', { show_alert: true })
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -109,7 +110,7 @@ export async function handleRemoveFavorite(ctx: BotContext) {
     await ctx.answerCbQuery?.(`${EMOJIS.remove} Sevimlilardan olib tashlandi!`, { show_alert: false })
   } catch (error) {
     logger.error(error, 'handleRemoveFavorite error')
-    await ctx.answerCbQuery?.('Xatolik yuz berdi.', { show_alert: true })
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -142,7 +143,7 @@ export async function handleWatchHistory(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleWatchHistory error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -175,7 +176,7 @@ export async function handleFavoritePagination(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleFavoritePagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -208,7 +209,7 @@ export async function handleHistoryPagination(ctx: BotContext) {
     })
   } catch (error) {
     logger.error(error, 'handleHistoryPagination error')
-    await ctx.reply(`${EMOJIS.error} Xatolik yuz berdi.`)
+    await handleControllerError(ctx, error)
   }
 }
 
@@ -223,7 +224,7 @@ export async function handleClearHistory(ctx: BotContext) {
     await handleProfile(ctx)
   } catch (error) {
     logger.error(error, 'handleClearHistory error')
-    await ctx.answerCbQuery?.('Xatolik yuz berdi.', { show_alert: true })
+    await handleControllerError(ctx, error)
   }
 }
 

@@ -1,6 +1,5 @@
 import { BotContext } from '../types'
 import { logger } from '../utils/logger'
-import mongoose from 'mongoose'
 import { config } from '../config'
 
 async function reportToOwner(error: any, ctx?: BotContext) {
@@ -64,20 +63,8 @@ export async function handleError(error: unknown, ctx?: BotContext) {
 }
 
 function getErrorMessage(error: any): string {
-  const code = error?.code || error?.name || ''
-  const msg = (error?.message || '').toLowerCase()
-
-  if (code === 'ECONNREFUSED' || msg.includes('connect') || msg.includes('mongoose')) {
-    return '🚫 Server bilan bog\'lanishda xatolik. Administratorga murojaat qiling.'
-  }
-  if (msg.includes('etimedout') || msg.includes('timeout') || msg.includes('timed out')) {
-    return '⏱ Server juda sekin javob berdi. Qayta urinib ko\'ring.'
-  }
-  if (code === 'EFATAL' || msg.includes('fatal')) {
-    return '❌ Jiddiy xatolik. Iltimos keyinroq urinib ko\'ring.'
-  }
-  if (mongoose.connection.readyState !== 1) {
-    return '🔄 Ma\'lumotlar bazasiga ulanmoqda... Bir ozdan so\'ng qayta urinib ko\'ring.'
-  }
-  return '❌ Xatolik yuz berdi. Iltimos qayta urinib ko\'ring.'
+  const msg = error?.message || String(error)
+  const maxLen = 300
+  const shortMsg = msg.length > maxLen ? msg.slice(0, maxLen) + '...' : msg
+  return `❌ Xatolik: ${shortMsg.replace(/</g, '&lt;').replace(/>/g, '&gt;')}`
 }

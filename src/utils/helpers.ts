@@ -1,4 +1,5 @@
-import { ROLE_LEVELS } from '../config/constants'
+import { BotContext } from '../types'
+import { EMOJIS, ROLE_LEVELS } from '../config/constants'
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -56,4 +57,23 @@ export function hasPermission(userRole: string, requiredLevel: number): boolean 
   const userLevel = ROLE_LEVELS[userRole as keyof typeof ROLE_LEVELS]
   if (userLevel === undefined) return false
   return userLevel >= requiredLevel
+}
+
+export async function handleControllerError(ctx: BotContext, error: unknown) {
+  const errMsg = error instanceof Error ? error.message : String(error)
+  const maxLen = 200
+  const shortMsg = errMsg.length > maxLen ? errMsg.slice(0, maxLen) + '...' : errMsg
+  try {
+    await ctx.reply(`${EMOJIS.error} <b>Xatolik:</b> ${escapeHtml(shortMsg)}`, { parse_mode: 'HTML' })
+  } catch {}
+  try {
+    await ctx.answerCbQuery?.('Xatolik: ' + shortMsg.slice(0, 100), { show_alert: true })
+  } catch {}
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
 }
