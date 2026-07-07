@@ -2046,8 +2046,20 @@ export async function handleAdminSettingsPageSizeProcess(ctx: BotContext) {
     await SettingService.setPageSize(size)
     await logAdminAction(ctx, 'settings_change_pagesize', String(size))
     ctx.session!.data = { step: null }
-    await ctx.reply(`${EMOJIS.success} Sahifa hajmi <b>${size}</b> ga o'zgartirildi!`, { parse_mode: 'HTML' })
-    await handleAdminSettings(ctx)
+    const maintenance = await SettingService.isMaintenanceMode()
+    const channelLink = await SettingService.getMoviesChannelLink()
+    const settingsText = [
+      `${EMOJIS.settings} <b>Sozlamalar</b>\n\n`,
+      `Kerakli bo'limni tanlang:\n\n`,
+      `🤖 Bot holati: <b>${maintenance ? '🔧 Xizmat rejimida' : '✅ Faol'}</b>\n`,
+      `📄 Sahifa hajmi: <b>${size} ta</b>\n`,
+      `📢 Kinolar kanali: <b>${channelLink ? '✅ Sozlangan' : '❌ Sozlanmagan'}</b>\n\n`,
+      `${EMOJIS.success} Sahifa hajmi <b>${size}</b> ga o'zgartirildi!\n`,
+    ].join('')
+    await ctx.reply(settingsText, {
+      parse_mode: 'HTML',
+      reply_markup: adminSettingsKeyboard(size, channelLink || undefined).reply_markup,
+    })
   } catch (error) {
     logger.error(error, 'handleAdminSettingsPageSizeProcess error')
     await handleControllerError(ctx, error)
@@ -2097,8 +2109,21 @@ export async function handleAdminSettingsChannelLinkProcess(ctx: BotContext) {
     await SettingService.setMoviesChannelLink(text)
     await logAdminAction(ctx, 'settings_channel_link', text)
     ctx.session!.data = { step: null }
-    await ctx.reply(`${EMOJIS.success} Kinolar kanali linki saqlandi!\n\nLink: ${text}`)
-    await handleAdminSettings(ctx)
+    const maintenance = await SettingService.isMaintenanceMode()
+    const pageSize = await SettingService.getPageSize()
+    const channelLink = await SettingService.getMoviesChannelLink()
+    const settingsText = [
+      `${EMOJIS.settings} <b>Sozlamalar</b>\n\n`,
+      `Kerakli bo'limni tanlang:\n\n`,
+      `🤖 Bot holati: <b>${maintenance ? '🔧 Xizmat rejimida' : '✅ Faol'}</b>\n`,
+      `📄 Sahifa hajmi: <b>${pageSize} ta</b>\n`,
+      `📢 Kinolar kanali: <b>✅ Sozlangan</b>\n\n`,
+      `${EMOJIS.success} Kanal linki saqlandi: ${text}\n`,
+    ].join('')
+    await ctx.reply(settingsText, {
+      parse_mode: 'HTML',
+      reply_markup: adminSettingsKeyboard(pageSize, channelLink || undefined).reply_markup,
+    })
   } catch (error) {
     logger.error(error, 'handleAdminSettingsChannelLinkProcess error')
     await handleControllerError(ctx, error)
