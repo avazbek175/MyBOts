@@ -28,10 +28,6 @@ export async function subscriptionMiddleware(ctx: BotContext, next: () => Promis
     return await next()
   }
 
-  if (user.lastSubscriptionCheck && Date.now() - new Date(user.lastSubscriptionCheck).getTime() < 300_000) {
-    return await next()
-  }
-
   const channels = await getActiveChannels()
   if (channels.length === 0) return await next()
 
@@ -59,9 +55,5 @@ export async function subscriptionMiddleware(ctx: BotContext, next: () => Promis
   }
 
   ctx.session.isSubscribed = true
-  try {
-    const { default: User } = await import('../models/User')
-    await User.updateOne({ telegramId: ctx.from!.id }, { $set: { lastSubscriptionCheck: new Date() } })
-  } catch {}
   await next()
 }
