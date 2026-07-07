@@ -3,7 +3,7 @@ import User from '../models/User'
 import { IBroadcast } from '../types'
 import { splitArray } from '../utils/helpers'
 import { logger } from '../utils/logger'
-import { Telegraf } from 'telegraf'
+import { Telegram } from 'telegraf'
 
 export class BroadcastService {
   static async createBroadcast(
@@ -25,7 +25,7 @@ export class BroadcastService {
     return broadcast.toObject()
   }
 
-  static async sendToAllUsers(bot: Telegraf, broadcastId: string): Promise<void> {
+  static async sendToAllUsers(bot: Telegram, broadcastId: string): Promise<void> {
     const broadcast = await Broadcast.findById(broadcastId)
     if (!broadcast || broadcast.status === 'cancelled') return
 
@@ -46,29 +46,29 @@ export class BroadcastService {
           const chatId = user.telegramId
           switch (broadcast.type) {
             case 'text':
-              await bot.telegram.sendMessage(chatId, broadcast.content!, { parse_mode: 'HTML' })
+              await bot.sendMessage(chatId, broadcast.content!, { parse_mode: 'HTML' })
               break
             case 'photo':
-              await bot.telegram.sendPhoto(chatId, broadcast.mediaFileId!, {
+              await bot.sendPhoto(chatId, broadcast.mediaFileId!, {
                 caption: broadcast.content,
                 parse_mode: 'HTML',
               })
               break
             case 'video':
-              await bot.telegram.sendVideo(chatId, broadcast.mediaFileId!, {
+              await bot.sendVideo(chatId, broadcast.mediaFileId!, {
                 caption: broadcast.content,
                 parse_mode: 'HTML',
               })
               break
             case 'audio':
-              await bot.telegram.sendAudio(chatId, broadcast.mediaFileId!, {
+              await bot.sendAudio(chatId, broadcast.mediaFileId!, {
                 caption: broadcast.content,
                 parse_mode: 'HTML',
               })
               break
             case 'forward':
               if (broadcast.mediaFileId) {
-                await bot.telegram.sendMessage(chatId, broadcast.mediaFileId)
+                await bot.sendMessage(chatId, broadcast.mediaFileId)
               }
               break
           }
