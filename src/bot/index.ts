@@ -314,6 +314,7 @@ bot.hears('🏠 Bosh menyu', async (ctx: BotContext) => {
 bot.action('check_subscription', async (ctx) => {
   await subscriptionMiddleware(ctx, async () => {
     await ctx.answerCbQuery('✅ Obuna tasdiqlandi!')
+    try { await ctx.deleteMessage() } catch {}
     await handleMainMenu(ctx)
   })
 })
