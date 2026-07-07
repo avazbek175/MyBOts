@@ -3,11 +3,11 @@ import { EMOJIS } from '../config/constants'
 
 export function adminMainReplyKeyboard() {
   return Markup.keyboard([
-    ['📊 Dashboard', '🎬 Kinolar', '🎞 Seriallar'],
-    ['📂 Kategoriyalar', '📢 Kanallar', '👥 Foydalanuvchilar'],
-    ['💎 Premium', '⭐ To\'lovlar', '📨 Broadcast'],
-    ['📈 Statistika', '🛡 Moderatorlar', '⚙ Sozlamalar'],
-    ['📝 Loglar', '🏠 Bosh menyu'],
+    ['📊 Dashboard', '🎬 Kinolar', '📂 Kategoriyalar'],
+    ['📢 Kanallar', '👥 Foydalanuvchilar', '💎 Premium'],
+    ['⭐ To\'lovlar', '📨 Broadcast', '📈 Statistika'],
+    ['🛡 Moderatorlar', '⚙ Sozlamalar', '📝 Loglar'],
+    ['🏠 Bosh menyu'],
   ]).resize()
 }
 
@@ -56,7 +56,7 @@ export function adminPaymentsReplyKeyboard() {
 
 export function adminBroadcastReplyKeyboard() {
   return Markup.keyboard([
-    ['📨 Broadcast'],
+    ['📨 Yangi broadcast'],
     ['🔙 Admin panel'],
   ]).resize()
 }

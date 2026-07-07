@@ -66,7 +66,7 @@ import {
   handleAdminAddCategoryProcess, handleAdminBanUserProcess, handleAdminGrantPremiumProcess,
   handleAdminRefundProcess, handleAdminSendBroadcastProcess, handleAdminAddAdminProcess,
   handleAdminDeleteMovieConfirm, handleAdminDeleteCategoryConfirm, handleAdminDeleteChannelConfirm,
-  handleAdminGrantPremiumSelect, handleAdminPaymentsAll, handleAdminBroadcastConfirm,
+  handleAdminGrantPremiumSelect, handleAdminPaymentsAll, handleAdminBroadcastConfirm, handleAdminBroadcastCancel,
   handleAdminTogglePermission, handleAdminSaveAdmin, handleAdminRemoveAdminConfirm,
   handleAdminEditMovieSelect, handleAdminEditMovieField, handleAdminEditMovieProcess,
 } from '../controllers/admin.controller'
@@ -266,6 +266,7 @@ bot.action(/^admin_page:([a-z_]+):(\d+)$/, handleAdminPagination)
 bot.action(/^admin_grant_plan_(.+)$/, handleAdminGrantPremiumSelect)
 bot.action('admin_payments_all', handleAdminPaymentsAll)
 bot.action('admin_broadcast_confirm_send', handleAdminBroadcastConfirm)
+bot.action('admin_broadcast_cancel', handleAdminBroadcastCancel)
 bot.action(/^admin_toggle_perm_(.+)$/, handleAdminTogglePermission)
 bot.action('admin_save_admin_permissions', handleAdminSaveAdmin)
 bot.action(/^admin_remove_admin_confirm_(.+)$/, handleAdminRemoveAdminConfirm)
@@ -316,10 +317,6 @@ bot.hears('🎬 Kinolar', async (ctx: BotContext) => {
   } else {
     await handleMovieList(ctx)
   }
-})
-bot.hears('🎞 Seriallar', async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleAdminSeries(ctx)
 })
 bot.hears('📂 Kategoriyalar', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
@@ -384,14 +381,6 @@ bot.hears("🗑 Kinoni o'chirish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminDeleteMovie(ctx)
 })
-bot.hears("🎞 Serial qo'shish", async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleAdminAddSeries(ctx)
-})
-bot.hears("📋 Seriallar ro'yxati", async (ctx: BotContext) => {
-  ctx.session = ctx.session || {}
-  await handleAdminSeriesList(ctx)
-})
 bot.hears("📂 Kategoriya qo'shish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminAddCategory(ctx)
@@ -416,7 +405,7 @@ bot.hears("⭐ Barcha to'lovlar", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminPaymentsAll(ctx)
 })
-bot.hears('📨 Broadcast', async (ctx: BotContext) => {
+bot.hears('📨 Yangi broadcast', async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminSendBroadcast(ctx)
 })

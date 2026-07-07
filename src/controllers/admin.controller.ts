@@ -1596,6 +1596,17 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
   }
 }
 
+export async function handleAdminBroadcastCancel(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    ctx.session!.data = undefined
+    await ctx.editMessageText(`${EMOJIS.check} Broadcast bekor qilindi.`)
+  } catch (error) {
+    logger.error(error, 'handleAdminBroadcastCancel error')
+    await handleControllerError(ctx, error)
+  }
+}
+
 // ─── Stats ─────────────────────────────────────────────────
 
 export async function handleAdminStats(ctx: BotContext) {
