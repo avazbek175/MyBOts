@@ -7,17 +7,16 @@ export async function startCommand(ctx: BotContext) {
   await ctx.reply(
     `${EMOJIS.movie} Assalomu alaykum, ${name}!
 
-🎬 ULTIMATE MOVIE BOT ga xush kelibsiz!
+🎬 <b>Kino Prime | UZ</b> ga xush kelibsiz!
 
-Bu yerda siz eng so'nggi kinolar va seriallarni topishingiz mumkin.
+Bu yerda siz eng so'nggi kinolarni topishingiz mumkin.
 
-${EMOJIS.search} Kino kodi yoki nomi bilan qidirish
-${EMOJIS.category} Kategoriyalar bo'yicha ko'rish
-${EMOJIS.heart} Sevimlilar va tarix
-${EMOJIS.premium} Premium sotib olish
+🔍 Kino kodi bilan qidirish
+❤️ Sevimlilar va tarix
+💎 Premium sotib olish
 
 Marhamat, kerakli bo'limni tanlang:`,
-    { reply_markup: mainMenuReplyKeyboard().reply_markup }
+    { parse_mode: 'HTML', reply_markup: mainMenuReplyKeyboard().reply_markup }
   )
 }
 
