@@ -51,6 +51,8 @@ import {
   handleAdminSeries, handleAdminSeriesList, handleAdminAddSeries, handleAdminAddSeason, handleAdminAddEpisode,
   handleAdminCategories, handleAdminCategoryList, handleAdminAddCategory, handleAdminDeleteCategory,
   handleAdminChannels, handleAdminChannelList, handleAdminAddChannel, handleAdminDeleteChannel,
+  handleAdminEditChannel, handleAdminEditChannelSelect, handleAdminEditChannelToggleActive,
+  handleAdminEditChannelPromptName, handleAdminEditChannelPromptUrl, handleAdminEditChannelProcess,
   handleAdminUsers, handleAdminUsersList, handleAdminBanUser, handleAdminUnbanUser,
   handleAdminPremium, handleAdminGrantPremium, handleAdminPremiumPrices,
   handleAdminPayments, handleAdminRefund,
@@ -239,6 +241,10 @@ bot.action('admin_channels', handleAdminChannels)
 bot.action('admin_add_channel', handleAdminAddChannel)
 bot.action(/^admin_delete_channel:(.+)$/, handleAdminDeleteChannel)
 bot.action(/^admin_channel_delete_confirm_(.+)$/, handleAdminDeleteChannelConfirm)
+bot.action(/^admin_channel_edit_(?!name_|url_|toggle_)(.+)$/, handleAdminEditChannelSelect)
+bot.action(/^admin_channel_edit_name_(.+)$/, handleAdminEditChannelPromptName)
+bot.action(/^admin_channel_edit_url_(.+)$/, handleAdminEditChannelPromptUrl)
+bot.action(/^admin_channel_edit_toggle_(.+)$/, handleAdminEditChannelToggleActive)
 bot.action('admin_users', handleAdminUsers)
 bot.action('admin_users_list', handleAdminUsersList)
 bot.action(/^admin_ban:(.+)$/, handleAdminBanUser)
@@ -397,6 +403,14 @@ bot.hears("📋 Kanallar ro'yxati", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminChannelList(ctx)
 })
+bot.hears("✏️ Kanal tahrirlash", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminEditChannel(ctx)
+})
+bot.hears("🗑 Kanal o'chirish", async (ctx: BotContext) => {
+  ctx.session = ctx.session || {}
+  await handleAdminDeleteChannel(ctx)
+})
 bot.hears("💎 Premium berish", async (ctx: BotContext) => {
   ctx.session = ctx.session || {}
   await handleAdminGrantPremium(ctx)
@@ -491,6 +505,8 @@ bot.on('text', async (ctx) => {
       await handleAdminAddAdminProcess(ctx)
     } else if (step.startsWith('admin_add_channel')) {
       await handleAdminAddChannelProcess(ctx)
+    } else if (step.startsWith('admin_edit_channel_')) {
+      await handleAdminEditChannelProcess(ctx)
     } else if (step.startsWith('admin_edit_movie_')) {
       await handleAdminEditMovieProcess(ctx)
     } else if (step === 'admin_settings_pagesize') {

@@ -1114,7 +1114,7 @@ export async function handleAdminDeleteChannel(ctx: BotContext) {
     const channels = await ChannelService.getAll()
 
     if (channels.length === 0) {
-      await ctx.editMessageText(`${EMOJIS.channel} O'chirish uchun kanallar mavjud emas.`)
+      await adminReply(ctx, `${EMOJIS.channel} O'chirish uchun kanallar mavjud emas.`)
       return
     }
 
@@ -1124,10 +1124,9 @@ export async function handleAdminDeleteChannel(ctx: BotContext) {
 
     buttons.push([{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_channels' }])
 
-    await ctx.editMessageText(`${EMOJIS.channel} <b>Kanal o'chirish</b>\n\nO'chirmoqchi bo'lgan kanalni tanlang:`, {
-      parse_mode: 'HTML',
-      reply_markup: { inline_keyboard: buttons },
-    })
+    await adminReply(ctx, `${EMOJIS.channel} <b>Kanal o'chirish</b>\n\nO'chirmoqchi bo'lgan kanalni tanlang:`,
+      { reply_markup: { inline_keyboard: buttons } }
+    )
   } catch (error) {
     logger.error(error, 'handleAdminDeleteChannel error')
     await handleControllerError(ctx, error)
@@ -1152,6 +1151,164 @@ export async function handleAdminDeleteChannelConfirm(ctx: BotContext) {
     await ctx.editMessageText(`${EMOJIS.success} Kanal o'chirildi: ${channel.channelName}`, { parse_mode: 'HTML' })
   } catch (error) {
     logger.error(error, 'handleAdminDeleteChannelConfirm error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+// ─── Edit Channel ──────────────────────────────────────────
+
+export async function handleAdminEditChannel(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const channels = await ChannelService.getAll()
+
+    if (channels.length === 0) {
+      await adminReply(ctx, `${EMOJIS.channel} Tahrirlash uchun kanallar mavjud emas.`)
+      return
+    }
+
+    const buttons = channels.map((ch) => [
+      { text: `✏️ ${ch.channelName}`, callback_data: `admin_channel_edit_${(ch as any)._id}` },
+    ])
+
+    buttons.push([{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_channels' }])
+
+    await adminReply(ctx, `${EMOJIS.channel} <b>Kanal tahrirlash</b>\n\nQaysi kanalni tahrirlamoqchisiz?`,
+      { reply_markup: { inline_keyboard: buttons } }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminEditChannel error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+export async function handleAdminEditChannelSelect(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
+    const channelId = data.replace('admin_channel_edit_', '')
+
+    const channel = await ChannelService.getById(channelId)
+    if (!channel) {
+      await ctx.editMessageText(`${EMOJIS.error} Kanal topilmadi.`)
+      return
+    }
+
+    ctx.session!.data = { step: `admin_edit_channel_${channelId}`, channelEditId: channelId }
+
+    const info = [
+      `${EMOJIS.channel} <b>Kanal ma'lumotlari</b>\n\n`,
+      `Nomi: <b>${channel.channelName}</b>\n`,
+      `URL: <code>${channel.channelUrl}</code>\n`,
+      `Holati: ${channel.isActive ? '✅ Faol' : '❌ No faol'}\n\n`,
+      `Nimani o'zgartirmoqchisiz?`,
+    ].join('')
+
+    await ctx.editMessageText(info, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📝 Nomini o\'zgartirish', callback_data: `admin_channel_edit_name_${channelId}` }],
+          [{ text: '🔗 URL ni o\'zgartirish', callback_data: `admin_channel_edit_url_${channelId}` }],
+          [{ text: `✅ Faollikni o'zgartirish`, callback_data: `admin_channel_edit_toggle_${channelId}` }],
+          [{ text: `${EMOJIS.back} Orqaga`, callback_data: 'admin_channels' }],
+        ],
+      },
+    })
+  } catch (error) {
+    logger.error(error, 'handleAdminEditChannelSelect error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+export async function handleAdminEditChannelToggleActive(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
+    const channelId = data.replace('admin_channel_edit_toggle_', '')
+
+    const channel = await ChannelService.getById(channelId)
+    if (!channel) {
+      await ctx.editMessageText(`${EMOJIS.error} Kanal topilmadi.`)
+      return
+    }
+
+    const newStatus = !channel.isActive
+    await ChannelService.update(channelId, { isActive: newStatus } as any)
+    await logAdminAction(ctx, 'channel_toggle', channelId, `${channel.channelName}: ${newStatus ? 'faol' : 'no faol'}`)
+
+    await ctx.editMessageText(
+      `${EMOJIS.success} Kanal holati o'zgartirildi: <b>${channel.channelName}</b> → ${newStatus ? '✅ Faol' : '❌ No faol'}`,
+      { parse_mode: 'HTML' }
+    )
+  } catch (error) {
+    logger.error(error, 'handleAdminEditChannelToggleActive error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+export async function handleAdminEditChannelPromptName(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
+    const channelId = data.replace('admin_channel_edit_name_', '')
+    ctx.session!.data = { step: `admin_edit_channel_name_${channelId}`, channelEditId: channelId }
+    await ctx.editMessageText(`${EMOJIS.channel} Kanalning yangi nomini kiriting:`, { parse_mode: 'HTML' })
+  } catch (error) {
+    logger.error(error, 'handleAdminEditChannelPromptName error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+export async function handleAdminEditChannelPromptUrl(ctx: BotContext) {
+  try {
+    if (ctx.callbackQuery) await ctx.answerCbQuery()
+    const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? (ctx.callbackQuery as any).data : ''
+    const channelId = data.replace('admin_channel_edit_url_', '')
+    ctx.session!.data = { step: `admin_edit_channel_url_${channelId}`, channelEditId: channelId }
+    await ctx.editMessageText(`${EMOJIS.channel} Kanalning yangi URL manzilini kiriting (masalan: https://t.me/kanalnomi):`, { parse_mode: 'HTML' })
+  } catch (error) {
+    logger.error(error, 'handleAdminEditChannelPromptUrl error')
+    await handleControllerError(ctx, error)
+  }
+}
+
+export async function handleAdminEditChannelProcess(ctx: BotContext) {
+  try {
+    const step = ctx.session?.data?.step || ''
+    const channelId = ctx.session?.data?.channelEditId
+    if (!channelId) return
+
+    const text = ctx.message && 'text' in ctx.message ? ctx.message.text?.trim() : ''
+    if (!text) return
+
+    if (text === '/cancel') {
+      ctx.session.data = undefined
+      await ctx.reply(`${EMOJIS.check} Jarayon bekor qilindi.`)
+      await handleAdminChannels(ctx)
+      return
+    }
+
+    const channel = await ChannelService.getById(channelId)
+    if (!channel) {
+      await ctx.reply(`${EMOJIS.error} Kanal topilmadi.`)
+      ctx.session.data = undefined
+      return
+    }
+
+    if (step.startsWith('admin_edit_channel_name_')) {
+      await ChannelService.update(channelId, { channelName: text } as any)
+      await logAdminAction(ctx, 'channel_edit', channelId, `Nom: ${channel.channelName} → ${text}`)
+      ctx.session.data = undefined
+      await ctx.reply(`${EMOJIS.success} Kanal nomi yangilandi: <b>${text}</b>`, { parse_mode: 'HTML' })
+    } else if (step.startsWith('admin_edit_channel_url_')) {
+      await ChannelService.update(channelId, { channelUrl: text } as any)
+      await logAdminAction(ctx, 'channel_edit', channelId, `URL: ${channel.channelUrl} → ${text}`)
+      ctx.session.data = undefined
+      await ctx.reply(`${EMOJIS.success} Kanal URL yangilandi: <code>${text}</code>`, { parse_mode: 'HTML' })
+    }
+  } catch (error) {
+    logger.error(error, 'handleAdminEditChannelProcess error')
     await handleControllerError(ctx, error)
   }
 }
@@ -1632,7 +1789,8 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
     const cbMsg = ctx.callbackQuery && 'message' in ctx.callbackQuery ? ctx.callbackQuery.message as any : null
     const messageId = cbMsg?.message_id
 
-    BroadcastService.sendToAllUsers(bot, broadcastId).then(async (result) => {
+    try {
+      const result = await BroadcastService.sendToAllUsers(bot, broadcastId)
       logger.info(`Broadcast ${broadcastId} completed: sent=${result.sent}, failed=${result.failed}, blocked=${result.blocked}`)
       if (chatId && messageId) {
         try {
@@ -1643,7 +1801,7 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
           )
         } catch {}
       }
-    }).catch(async (err) => {
+    } catch (err: any) {
       logger.error(err, 'Broadcast send error')
       const ownerId = config.owner.ids[0]
       if (ownerId) {
@@ -1651,7 +1809,7 @@ export async function handleAdminBroadcastConfirm(ctx: BotContext) {
           await bot.sendMessage(ownerId, `⚠️ <b>Broadcast xatoligi</b>\n\nBroadcast ID: <code>${broadcastId}</code>\nXatolik: ${err.message || 'Noma\'lum'}`, { parse_mode: 'HTML' })
         } catch {}
       }
-    })
+    }
 
     ctx.session.data = undefined
   } catch (error) {

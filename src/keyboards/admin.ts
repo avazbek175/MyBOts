@@ -36,6 +36,7 @@ export function adminCategoriesReplyKeyboard() {
 export function adminChannelsReplyKeyboard() {
   return Markup.keyboard([
     ['📢 Kanal qo\'shish', '📋 Kanallar ro\'yxati'],
+    ['✏️ Kanal tahrirlash', '🗑 Kanal o\'chirish'],
     ['🔙 Admin panel'],
   ]).resize()
 }
