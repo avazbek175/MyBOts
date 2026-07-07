@@ -47,10 +47,12 @@ export async function subscriptionMiddleware(ctx: BotContext, next: () => Promis
     const channelButtons: any[] = channels.map(ch => [Markup.button.url(`📢 ${ch.channelName}`, ch.channelUrl)])
     channelButtons.push([Markup.button.callback('⭐ Premium olish', 'premium')])
     channelButtons.push([Markup.button.callback('✅ Obuna bo\'ldim', 'check_subscription')])
-    await ctx.reply(
-      '📢 Botdan foydalanish uchun quyidagi kanallarga obuna bo\'ling:',
-      Markup.inlineKeyboard(channelButtons)
-    )
+    try {
+      await ctx.reply(
+        '📢 Botdan foydalanish uchun quyidagi kanallarga obuna bo\'ling:',
+        Markup.inlineKeyboard(channelButtons)
+      )
+    } catch {}
     return
   }
 
