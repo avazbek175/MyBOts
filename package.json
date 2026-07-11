@@ -6,10 +6,14 @@
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "node --no-deprecation dist/app.js",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write src/**/*.ts"
+    "format": "prettier --write src/**/*.ts",
+    "set-webhook": "node scripts/set-webhook.js",
+    "delete-webhook": "node scripts/delete-webhook.js",
+    "vercel-build": "tsc",
+    "post-deploy": "node scripts/set-webhook.js"
   },
   "dependencies": {
     "telegraf": "^4.16.3",

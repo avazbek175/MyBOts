@@ -23,7 +23,6 @@ export async function connectDatabase(): Promise<void> {
     })
   } catch (error) {
     logger.error(error, 'MongoDB connection failed:')
-    process.exit(1)
   }
 }
 

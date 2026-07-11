@@ -29,8 +29,7 @@ async function ensureDbConnection(): Promise<void> {
     logger.info('MongoDB connected')
   } catch (error) {
     dbConnected = false
-    logger.error(error, 'MongoDB connection failed')
-    throw error
+    logger.warn(error, 'MongoDB connection failed - continuing without DB')
   }
 }
 
@@ -39,7 +38,8 @@ async function lazyInit(): Promise<void> {
     if (mongoose.connection.readyState !== 1) {
       try {
         await mongoose.connect(config.mongodb.uri)
-      } catch {}
+        dbConnected = true
+      } catch { dbConnected = false }
     }
     return
   }
@@ -50,8 +50,7 @@ async function lazyInit(): Promise<void> {
     bot = botInstance
     appInitialized = true
   } catch (error) {
-    logger.error(error, 'App initialization failed')
-    throw error
+    logger.warn(error, 'App initialization failed - will retry')
   }
 }
 
@@ -82,19 +81,26 @@ export async function createApp(): Promise<express.Application> {
     })
   })
 
+  app.get('/api/webhook', (_req, res) => {
+    res.status(200).json({
+      ok: true,
+      status: bot ? 'running' : 'initializing',
+      webhook: '/api/webhook',
+      method: 'GET',
+      timestamp: new Date().toISOString(),
+    })
+  })
+
   app.post('/api/webhook', async (req, res) => {
-    try {
-      await lazyInit()
-      if (!bot) {
-        res.sendStatus(200)
-        return
+    lazyInit().catch(() => {})
+    if (bot) {
+      try {
+        await bot.handleUpdate(req.body)
+      } catch (err) {
+        logger.error(err, 'Webhook error:')
       }
-      await bot.handleUpdate(req.body)
-      res.sendStatus(200)
-    } catch (err) {
-      logger.error(err, 'Webhook error:')
-      res.sendStatus(200)
     }
+    res.sendStatus(200)
   })
 
   return app
