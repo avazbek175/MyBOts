@@ -1,6 +1,8 @@
-import { createApp } from '../app'
+process.noDeprecation = true
+
 import { logger } from '../utils/logger'
 import { Request, Response } from 'express'
+import { createApp } from '../app'
 
 let app: Awaited<ReturnType<typeof createApp>> | null = null
 
